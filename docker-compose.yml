@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # Development environment - Frontend only
+  todo-app-frontend-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    profiles: ["frontend-dev"]
+    tty: true
+
+  # Development environment - Backend only
+  todo-app-backend-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    profiles: ["backend-dev"]
+    command: ["npm", "run", "backend:dev"]
+    tty: true
+
+  # Development environment - Full stack
+  todo-app-fullstack-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    profiles: ["fullstack-dev"]
+    command: ["npm", "run", "fullstack:start"]
+    tty: true
+
+  # Production environment
+  todo-app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./todos.db:/app/todos.db
+    profiles: ["prod"]
+    restart: unless-stopped

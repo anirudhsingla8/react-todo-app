@@ -1,0 +1,39 @@
+# Use Node.js 20 as the base image
+FROM node:20-alpine
+
+# Install build dependencies for sqlite3
+RUN apk add --no-cache python3 make g++
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install all dependencies
+RUN npm install --prefer-offline --no-audit --no-fund && \
+    npm cache clean --force && \
+    rm -rf /root/.npm/_cacache
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the React application
+RUN npm run build
+
+# Build the NestJS backend
+RUN npm run backend:build
+
+# Create a non-root user for security
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Change ownership of the app directory to the nodejs user
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# Expose port 3000
+EXPOSE 3000
+
+# Start the NestJS server
+CMD ["node", "src/backend/dist/main.js"]
