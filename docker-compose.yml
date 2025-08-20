@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  # Development environment - Frontend only
-  todo-app-frontend-dev:
-    build: 
+  # Frontend service
+  frontend:
+    build:
       context: .
       dockerfile: Dockerfile
     ports:
@@ -14,49 +14,53 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-    profiles: ["frontend-dev"]
+      - DOCKER_ENV=true
+    profiles: ["frontend", "dev"]
     tty: true
 
-  # Development environment - Backend only
-  todo-app-backend-dev:
-    build: 
-      context: .
+  # Backend service
+  backend:
+    build:
+      context: ./src/backend
       dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src/backend:/app/src/backend
+      - /app/src/backend/node_modules
+      - /app/src/backend/dist
+    environment:
+      - NODE_ENV=development
+    profiles: ["backend", "dev"]
+    tty: true
+    working_dir: /app/src/backend
+
+  # Full stack service (frontend + backend in one container)
+  fullstack:
+    build:
+      context: .
+      dockerfile: Dockerfile.fullstack
     ports:
       - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
+      - /app/src/backend/node_modules
+      - /app/src/backend/dist
     environment:
-      - NODE_ENV=development
-    profiles: ["backend-dev"]
-    command: ["npm", "run", "backend:dev"]
-    tty: true
-
-  # Development environment - Full stack
-  todo-app-fullstack-dev:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-    profiles: ["fullstack-dev"]
-    command: ["npm", "run", "fullstack:start"]
+      - NODE_ENV=production
+      - DOCKER_ENV=true
+    profiles: ["fullstack"]
     tty: true
 
   # Production environment
-  todo-app-prod:
+  app:
     build:
       context: .
       dockerfile: Dockerfile.prod
     ports:
-      - "3000:3000"
+      - "80:80"
     volumes:
-      - ./todos.db:/app/todos.db
+      - ./todos.db:/etc/nginx/todos.db
     profiles: ["prod"]
     restart: unless-stopped

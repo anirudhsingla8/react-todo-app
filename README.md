@@ -155,43 +155,43 @@ This project includes Docker support for containerization. These instructions ar
 
 1. Build the development Docker image:
    ```bash
-   docker build -t react-todo-app -f Dockerfile .
+   docker build -t react-todo-app .
    ```
 
 2. Run the development container:
    ```bash
-   docker run -p 5173:5173 react-todo-app
+   docker run -p 5173:5173 -v $(pwd):/app -v /app/node_modules react-todo-app
    ```
 
 3. Access the frontend at `http://localhost:5173`
 
 #### Development Environment - Backend Only
 
-1. Build the development Docker image:
+1. Build the backend Docker image:
    ```bash
-   docker build -t react-todo-app -f Dockerfile .
+   docker build -t react-todo-app-backend -f src/backend/Dockerfile src/backend
    ```
 
 2. Run the backend development container:
    ```bash
-   docker run -p 3000:3000 react-todo-app npm run backend:dev
+   docker run -p 3000:3000 -v $(pwd)/src/backend:/app -v /app/node_modules react-todo-app-backend
    ```
 
 3. Access the backend API at `http://localhost:3000`
 
-#### Production Environment with NestJS Backend
+#### Production Environment
 
 1. Build the production Docker image:
    ```bash
    docker build -t react-todo-app-prod -f Dockerfile.prod .
    ```
 
-2. Run the production container (includes both frontend and NestJS backend):
+2. Run the production container:
    ```bash
-   docker run -p 3000:3000 react-todo-app-prod
+   docker run -p 80:80 react-todo-app-prod
    ```
 
-3. Access the full application at `http://localhost:3000`
+3. Access the full application at `http://localhost`
 
 4. To stop the container:
    ```bash
@@ -214,21 +214,28 @@ This project includes Docker Compose configuration with separate profiles for di
 ##### Frontend Development Only
 Run only the React frontend development server:
 ```bash
-docker-compose --profile frontend-dev up --build
+docker-compose --profile frontend up --build
 ```
 Access the frontend at `http://localhost:5173`
 
 ##### Backend Development Only
 Run only the NestJS backend development server:
 ```bash
-docker-compose --profile backend-dev up --build
+docker-compose --profile backend up --build
 ```
 Access the backend API at `http://localhost:3000`
 
 ##### Full Stack Development
 Run both frontend and backend together:
 ```bash
-docker-compose --profile fullstack-dev up --build
+docker-compose --profile dev up --build
+```
+Access the frontend at `http://localhost:5173` and backend API at `http://localhost:3000`
+
+##### Full Stack Production
+Run the full application in production mode:
+```bash
+docker-compose --profile fullstack up --build
 ```
 Access the full application at `http://localhost:3000`
 
@@ -244,7 +251,7 @@ docker-compose down
    docker-compose --profile prod up --build
    ```
 
-2. Access the full application at `http://localhost:3000`
+2. Access the full application at `http://localhost`
 
 3. To stop the production environment:
    ```bash
@@ -271,23 +278,6 @@ If you encounter issues with Docker builds:
    docker builder prune
    ```
 
-#### Production Environment
-
-1. Build the production Docker image:
-   ```bash
-   docker build -t react-todo-app-prod -f Dockerfile.prod .
-   ```
-
-2. Run the production container:
-   ```bash
-   docker run -p 8080:80 react-todo-app-prod
-   ```
-
-3. To stop the production container:
-   ```bash
-   docker stop $(docker ps -q --filter ancestor=react-todo-app-prod)
-   ```
-
 ### Docker Optimization Features
 
 The Docker configuration has been optimized for:
@@ -298,56 +288,14 @@ The Docker configuration has been optimized for:
 - **Development**: File watching enabled with volume mounting for hot reloading
 - **Production**: Multi-stage build to minimize final image size
 
-### Using Docker Compose (Recommended)
+### Docker Services
 
-This project includes Docker Compose configuration with separate profiles for development and production environments.
+This project includes multiple Docker services:
 
-#### Development Environment
-
-1. Build and start the development environment:
-   ```bash
-   docker-compose --profile dev up --build
-   ```
-
-2. Open your browser and navigate to `http://localhost:5173`
-
-3. To stop the development environment:
-   ```bash
-   docker-compose --profile dev down
-   ```
-
-#### Production Environment
-
-1. Build and start the production environment:
-   ```bash
-   docker-compose --profile prod up --build
-   ```
-
-2. Open your browser and navigate to `http://localhost:8080`
-
-3. To stop the production environment:
-   ```bash
-   docker-compose --profile prod down
-   ```
-
-### Stopping Docker Containers
-
-In addition to the specific stop commands mentioned above, you can also stop running containers using these general commands:
-
-- To stop a specific container by ID:
-  ```bash
-  docker stop <container_id>
-  ```
-
-- To stop all running containers:
-  ```bash
-  docker stop $(docker ps -q)
-  ```
-
-- To list all running containers:
-  ```bash
-  docker ps
-  ```
+- `frontend`: React development server
+- `backend`: NestJS API server
+- `fullstack`: Combined frontend and backend in one service
+- `app`: Production Nginx server serving the built React app
 
 ### Authentication and Data Persistence
 
@@ -370,11 +318,17 @@ The database file (`todos.db`) is automatically created in the root directory wh
 
 ## Docker Configuration Explanation
 
-- `Dockerfile`: Configuration for the development environment
+- `Dockerfile`: Configuration for the frontend development environment
   - Uses Node.js 20 Alpine image for a lightweight container
-  - Installs dependencies during build time using `npm ci`
+  - Installs frontend dependencies
   - Mounts the source code as a volume for hot reloading during development
   - Exposes port 5173 for the Vite development server
+
+- `src/backend/Dockerfile`: Configuration for the backend development environment
+  - Uses Node.js 20 Alpine image for a lightweight container
+  - Installs backend dependencies including build tools for sqlite3
+  - Builds and runs the NestJS application
+  - Exposes port 3000 for the NestJS server
 
 - `Dockerfile.prod`: Configuration for the production environment
   - Uses a multi-stage build process to minimize image size
@@ -383,9 +337,14 @@ The database file (`todos.db`) is automatically created in the root directory wh
   - Installs all dependencies including devDependencies for building
   - Copies the built files to Nginx's web directory
 
+- `Dockerfile.fullstack`: Configuration for the fullstack development environment
+  - Builds both frontend and backend applications in a single container
+  - Runs the NestJS server which serves both API endpoints and frontend files
+  - Useful for testing the complete application in a single container
+
 - `docker-compose.yml`: Orchestrates the Docker containers
-  - Defines separate services for development and production environments
-  - Uses profiles to allow running either environment independently
+  - Defines separate services for frontend, backend, and production environments
+  - Uses profiles to allow running different combinations of services
   - Maps container ports to host ports for easy access
   - Mounts volumes in development for hot reloading
 
@@ -415,6 +374,7 @@ react-todo-app/
 │   │   └── server.ts    # Server configuration
 │   └── tsconfig.json    # TypeScript configuration
 ├── Dockerfile           # Docker configuration for development
+├── Dockerfile.fullstack # Docker configuration for fullstack development
 ├── Dockerfile.prod      # Docker configuration for production
 ├── docker-compose.yml   # Docker Compose configuration
 ├── nginx.conf           # Nginx configuration for production
