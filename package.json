@@ -8,18 +8,24 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "node server.js",
-    "start": "node server.js",
+    "server": "node src/backend/dist/main.js",
+    "start": "node src/backend/dist/main.js",
+    "dev:fullstack": "docker compose --profile dev up --build",
     "backend:dev": "cd src/backend && npm install && npm run dev",
     "backend:build": "cd src/backend && npm install && npm run build",
     "backend:start": "cd src/backend && npm start",
     "fullstack:build": "npm run build && npm run backend:build",
-    "fullstack:start": "cd src/backend && npm start"
+    "fullstack:start": "cd src/backend && npm start",
+    "legacy-server": "node server.js"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
     "crypto-js": "^4.2.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1"
   },
   "devDependencies": {
     "@eslint/js": "^8.57.0",

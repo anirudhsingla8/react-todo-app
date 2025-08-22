@@ -5,7 +5,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.frontend
     ports:
       - "5173:5173"
     volumes:
@@ -15,8 +15,10 @@ services:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
       - DOCKER_ENV=true
-    profiles: ["frontend", "dev"]
-    tty: true
+    networks:
+      - app-network
+    depends_on:
+      - backend
 
   # Backend service
   backend:
@@ -26,41 +28,13 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./src/backend:/app/src/backend
-      - /app/src/backend/node_modules
-      - /app/src/backend/dist
+      - ./src/backend:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=development
-    profiles: ["backend", "dev"]
-    tty: true
-    working_dir: /app/src/backend
+    networks:
+      - app-network
 
-  # Full stack service (frontend + backend in one container)
-  fullstack:
-    build:
-      context: .
-      dockerfile: Dockerfile.fullstack
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/src/backend/node_modules
-      - /app/src/backend/dist
-    environment:
-      - NODE_ENV=production
-      - DOCKER_ENV=true
-    profiles: ["fullstack"]
-    tty: true
-
-  # Production environment
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    ports:
-      - "80:80"
-    volumes:
-      - ./todos.db:/etc/nginx/todos.db
-    profiles: ["prod"]
-    restart: unless-stopped
+networks:
+  app-network:
+    driver: bridge

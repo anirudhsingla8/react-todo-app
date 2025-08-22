@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.DOCKER_ENV === 'true' ? 'http://localhost:3000' : 'http://backend:3000',
+        target: process.env.DOCKER_ENV === 'true' ? 'http://backend:3000' : 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },

@@ -26,17 +26,17 @@ A simple and clean todo list application built with React and Vite.
 
 ### Running Locally
 
-1. Install dependencies:
+1. Install root dependencies:
    ```bash
    npm install
    ```
 
-2. Start the development server:
+2. Install backend dependencies:
    ```bash
-   npm run dev
+   cd src/backend && npm install && cd ../..
    ```
 
-3. Open your browser and navigate to `http://localhost:5173`
+3. Follow the "Run Backend and Frontend Separately" instructions below
 
 ### Building for Production
 
@@ -48,7 +48,9 @@ The built files will be in the `dist` directory.
 
 ### Running the Backend Server
 
-This application now includes a NestJS backend server for handling user authentication and todo persistence. You can run it in several ways:
+This application includes a NestJS backend server for handling user authentication and todo persistence. You can run it in several ways:
+
+**Note:** There is also a legacy simple HTTP server in `server.js`, but it's recommended to use the NestJS backend for full functionality.
 
 #### Option 1: Run Full Stack Application (Recommended for Production)
 
@@ -64,19 +66,50 @@ The application will be available at `http://localhost:3000`
 
 #### Option 2: Run Backend and Frontend Separately (Development)
 
-**Frontend (Vite development server):**
-```bash
-npm run dev
-```
-This runs the React frontend on `http://localhost:5173`
+For development, you need to run both the frontend and backend servers:
 
-**Backend (NestJS development server):**
+**Step 1: Start the Backend Server**
+Open a terminal and run:
 ```bash
-# Build and start the backend server
 npm run backend:dev
 ```
 
-This runs the NestJS backend on `http://localhost:3000`
+This command will:
+- Navigate to the backend directory
+- Install dependencies if needed
+- Build the TypeScript code
+- Start the NestJS server on port 3000
+
+You should see output similar to:
+```
+Application is running on: http://localhost:3000
+```
+
+**Step 2: Start the Frontend Development Server**
+Open a second terminal and run:
+```bash
+npm run dev
+```
+
+This command will:
+- Start the Vite development server
+- Run the React frontend on port 5173
+- Set up proxying for API calls to the backend
+
+You should see output similar to:
+```
+Local: http://localhost:5173
+```
+
+**Step 3: Access Your Application**
+Open your browser and navigate to `http://localhost:5173`
+
+You should now be able to:
+- Sign up for a new account
+- Log in with your credentials
+- Create, update, and delete todos
+
+All API calls will be automatically proxied from `http://localhost:5173/api/*` to `http://localhost:3000/api/*`
 
 #### Option 3: Run Using Node.js Directly
 
@@ -85,10 +118,19 @@ This runs the NestJS backend on `http://localhost:3000`
 npm run backend:build
 
 # Run the compiled JavaScript
-node src/backend/dist/main.js
+npm start
 ```
 
-#### Option 4: Run with Docker (Recommended for Consistent Environments)
+#### Option 4: Run Legacy Server (Simple HTTP Server)
+
+```bash
+# Run the legacy simple HTTP server
+npm run legacy-server
+```
+
+**Note:** The legacy server has limited functionality compared to the NestJS backend.
+
+#### Option 5: Run with Docker (Recommended for Consistent Environments)
 
 You can run the backend server using Docker for a consistent environment across different systems:
 
@@ -205,58 +247,43 @@ This project includes Docker support for containerization. These instructions ar
 
 ### Using Docker Compose (Recommended)
 
-This project includes Docker Compose configuration with separate profiles for different development scenarios and production environment.
+This project includes Docker Compose configuration for running both frontend and backend services together.
 
-**Note:** Docker Compose v2 is required. If you're using an older version, you may need to install Docker Compose separately or use `docker-compose` instead of `docker compose`.
+#### Running Both Services
 
-#### Development Environments
+To run both frontend and backend services:
 
-##### Frontend Development Only
-Run only the React frontend development server:
 ```bash
-docker-compose --profile frontend up --build
+docker-compose up --build
 ```
-Access the frontend at `http://localhost:5173`
 
-##### Backend Development Only
-Run only the NestJS backend development server:
+This will:
+- Build both frontend and backend Docker images
+- Start both services with proper networking
+- Enable API proxying between frontend and backend
+
+Access the application:
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000`
+
+#### Running Services Separately
+
+To run only the backend service:
 ```bash
-docker-compose --profile backend up --build
+docker-compose up backend
 ```
-Access the backend API at `http://localhost:3000`
 
-##### Full Stack Development
-Run both frontend and backend together:
+To run only the frontend service:
 ```bash
-docker-compose --profile dev up --build
+docker-compose up frontend
 ```
-Access the frontend at `http://localhost:5173` and backend API at `http://localhost:3000`
 
-##### Full Stack Production
-Run the full application in production mode:
-```bash
-docker-compose --profile fullstack up --build
-```
-Access the full application at `http://localhost:3000`
+#### Stopping Services
 
-To stop any development environment:
+To stop all services:
 ```bash
 docker-compose down
 ```
-
-#### Production Environment
-
-1. Build and start the production environment:
-   ```bash
-   docker-compose --profile prod up --build
-   ```
-
-2. Access the full application at `http://localhost`
-
-3. To stop the production environment:
-   ```bash
-   docker-compose --profile prod down
-   ```
 
 ### Data Persistence with Docker
 
@@ -281,7 +308,6 @@ If you encounter issues with Docker builds:
 ### Docker Optimization Features
 
 The Docker configuration has been optimized for:
-
 - **Security**: Uses non-root users for both development and production
 - **Performance**: Uses npm ci with caching optimizations
 - **Size**: Cleans npm cache to reduce image size
@@ -291,16 +317,12 @@ The Docker configuration has been optimized for:
 ### Docker Services
 
 This project includes multiple Docker services:
-
 - `frontend`: React development server
 - `backend`: NestJS API server
-- `fullstack`: Combined frontend and backend in one service
-- `app`: Production Nginx server serving the built React app
 
 ### Authentication and Data Persistence
 
 This application now includes user authentication and data persistence features with a NestJS backend server:
-
 - **User Login/Signup**: Users can create an account and log in with a username and password
 - **Session Management**: User sessions are stored in localStorage and persist between page reloads
 - **Todo Persistence**: Todos are saved in a persistent SQLite database (`todos.db`)
@@ -337,14 +359,8 @@ The database file (`todos.db`) is automatically created in the root directory wh
   - Installs all dependencies including devDependencies for building
   - Copies the built files to Nginx's web directory
 
-- `Dockerfile.fullstack`: Configuration for the fullstack development environment
-  - Builds both frontend and backend applications in a single container
-  - Runs the NestJS server which serves both API endpoints and frontend files
-  - Useful for testing the complete application in a single container
-
 - `docker-compose.yml`: Orchestrates the Docker containers
-  - Defines separate services for frontend, backend, and production environments
-  - Uses profiles to allow running different combinations of services
+  - Defines separate services for frontend and backend
   - Maps container ports to host ports for easy access
   - Mounts volumes in development for hot reloading
 
@@ -374,7 +390,6 @@ react-todo-app/
 │   │   └── server.ts    # Server configuration
 │   └── tsconfig.json    # TypeScript configuration
 ├── Dockerfile           # Docker configuration for development
-├── Dockerfile.fullstack # Docker configuration for fullstack development
 ├── Dockerfile.prod      # Docker configuration for production
 ├── docker-compose.yml   # Docker Compose configuration
 ├── nginx.conf           # Nginx configuration for production
@@ -382,4 +397,3 @@ react-todo-app/
 ├── index.html           # Main HTML file
 ├── package.json         # Project dependencies and scripts
 └── vite.config.js       # Vite configuration
-```
