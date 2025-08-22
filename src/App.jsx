@@ -1,12 +1,21 @@
 import { useState, useEffect } from 'react'
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import Login from './Login'
+import Dashboard from './components/Dashboard'
+import Notification from './components/Notification'
+import notificationService from './services/notificationService'
+import theme from './theme';
 import './App.css'
 
 function App() {
   const [user, setUser] = useState(null)
   const [todos, setTodos] = useState([])
-  const [inputValue, setInputValue] = useState('')
+  const [filteredTodos, setFilteredTodos] = useState([])
   const [loading, setLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [sortBy, setSortBy] = useState('createdAt')
+  const [sortOrder, setSortOrder] = useState('desc')
 
   // Check for existing user session on app load
   useEffect(() => {
@@ -47,31 +56,6 @@ function App() {
     setTodos([])
   }
 
-  const addTodo = async () => {
-    if (inputValue.trim() !== '') {
-      try {
-        const response = await fetch('/api/todos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username: user.username, text: inputValue })
-        })
-        
-        if (response.ok) {
-          const newTodo = await response.json()
-          setTodos([...todos, newTodo])
-          setInputValue('')
-        } else {
-          const error = await response.json()
-          console.error('Failed to add todo:', error.message)
-        }
-      } catch (error) {
-        console.error('Failed to add todo:', error)
-      }
-    }
-  }
-
   const toggleTodo = async (id) => {
     try {
       const todo = todos.find(t => t.id === id)
@@ -94,7 +78,7 @@ function App() {
         console.error('Failed to update todo:', error.message)
       }
     } catch (error) {
-      console.error('Failed to update todo:', error)
+      console.error('Network error:', error)
     }
   }
 
@@ -115,73 +99,109 @@ function App() {
         console.error('Failed to delete todo:', error.message)
       }
     } catch (error) {
-      console.error('Failed to delete todo:', error)
+      console.error('Network error:', error)
     }
   }
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      addTodo()
-    }
-  }
+  const handleUpdateTodo = (id, updatedTodo) => {
+    setTodos(todos.map(todo =>
+      todo.id === id ? { ...todo, ...updatedTodo } : todo
+    ));
+  };
 
-  // Show login screen if user is not authenticated
-  if (!user) {
-    return <Login onLogin={handleLogin} />
-  }
+  const handleDeleteTodo = (id) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+
+  // Filter and sort todos
+  useEffect(() => {
+    let filtered = [...todos];
+    
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(todo =>
+        todo.text.toLowerCase().includes(term) ||
+        (todo.notes && todo.notes.toLowerCase().includes(term)) ||
+        (todo.tags && todo.tags.some(tag => tag.toLowerCase().includes(term)))
+      );
+    }
+    
+    // Apply status filter
+    if (filterStatus === 'completed') {
+      filtered = filtered.filter(todo => todo.completed);
+    } else if (filterStatus === 'pending') {
+      filtered = filtered.filter(todo => !todo.completed);
+    }
+    
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'dueDate':
+          aValue = a.dueDate ? new Date(a.dueDate) : new Date(0);
+          bValue = b.dueDate ? new Date(b.dueDate) : new Date(0);
+          break;
+        case 'priority':
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          aValue = priorityOrder[a.priority] || 0;
+          bValue = priorityOrder[b.priority] || 0;
+          break;
+        case 'text':
+          aValue = a.text.toLowerCase();
+          bValue = b.text.toLowerCase();
+          break;
+        case 'createdAt':
+        default:
+          aValue = new Date(a.createdAt);
+          bValue = new Date(b.createdAt);
+          break;
+      }
+      
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+      }
+    });
+    
+    setFilteredTodos(filtered);
+  }, [todos, searchTerm, filterStatus, sortBy, sortOrder]);
 
   return (
-    <div className="app">
-      <div className="header-container">
-        <h1>Todo List</h1>
-        <div className="user-info">
-          <span>Hello, {user.username}!</span>
-          <button onClick={handleLogout} className="logout-button" aria-label="Logout">
-            Logout
-          </button>
-        </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className="app">
+        <Notification />
+        {user ? (
+          <Dashboard
+            user={user}
+            todos={todos}
+            filteredTodos={filteredTodos}
+            loading={loading}
+            searchTerm={searchTerm}
+            filterStatus={filterStatus}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onLogout={handleLogout}
+            onFilterChange={(filter) => {
+              setFilterStatus(filter.status);
+            }}
+            onSortChange={(by, order) => {
+              setSortBy(by);
+              setSortOrder(order);
+            }}
+            onSearchChange={setSearchTerm}
+            onAddTodo={(newTodo) => setTodos([...todos, newTodo])}
+            onUpdateTodo={handleUpdateTodo}
+            onDeleteTodo={handleDeleteTodo}
+          />
+        ) : (
+          <Login onLogin={handleLogin} />
+        )}
       </div>
-      <div className="input-container">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Add a new todo..."
-          aria-label="Add a new todo"
-        />
-        <button onClick={addTodo} aria-label="Add todo" disabled={loading}>
-          {loading ? 'Adding...' : 'Add'}
-        </button>
-      </div>
-      {loading && todos.length === 0 ? (
-        <p style={{ textAlign: 'center', padding: '2rem' }}>Loading todos...</p>
-      ) : todos.length > 0 ? (
-        <ul className="todo-list" role="list">
-          {todos.map(todo => (
-            <li key={todo.id} className={todo.completed ? 'completed' : ''}>
-              <span 
-                onClick={() => toggleTodo(todo.id)} 
-                onKeyPress={(e) => e.key === 'Enter' && toggleTodo(todo.id)}
-                tabIndex={0}
-                role="button"
-                aria-label={todo.completed ? `Mark ${todo.text} as incomplete` : `Mark ${todo.text} as complete`}
-              >
-                {todo.text}
-              </span>
-              <button 
-                onClick={() => deleteTodo(todo.id)}
-                aria-label={`Delete ${todo.text}`}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="empty-state">No todos yet. Add one above!</p>
-      )}
-    </div>
+    </ThemeProvider>
   )
 }
 

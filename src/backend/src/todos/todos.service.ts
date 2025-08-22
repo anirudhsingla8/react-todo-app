@@ -10,14 +10,20 @@ export class TodosService {
     private readonly usersService: UsersService,
   ) {}
 
-  async create(userId: number, text: string): Promise<Todo> {
+  async create(userId: number, text: string, options?: {
+    dueDate?: Date;
+    tags?: string[];
+    priority?: 'low' | 'medium' | 'high';
+    notes?: string;
+    reminder?: Date;
+  }): Promise<Todo> {
     // Verify user exists
     const user = await this.usersService.findOneById(userId);
     if (!user) {
       throw new Error('User not found');
     }
 
-    return await this.databaseService.createTodo(userId, text);
+    return await this.databaseService.createTodo(userId, text, options);
   }
 
   async findAllByUserId(userId: number): Promise<Todo[]> {
@@ -30,8 +36,12 @@ export class TodosService {
     return await this.databaseService.findTodosByUserId(userId);
   }
 
-  async update(id: number, completed: boolean): Promise<boolean> {
-    return await this.databaseService.updateTodo(id, completed);
+  async updateCompletion(id: number, completed: boolean): Promise<boolean> {
+    return await this.databaseService.updateTodoCompletion(id, completed);
+  }
+
+  async update(id: number, updates: Partial<Todo>): Promise<boolean> {
+    return await this.databaseService.updateTodo(id, updates);
   }
 
   async delete(id: number): Promise<boolean> {
