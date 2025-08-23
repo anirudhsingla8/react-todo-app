@@ -67,6 +67,7 @@ const TodoList = ({ todos }) => {
     <div>
       <AddTodoForm />
       <TodoFilters
+        todos={todos}
         onFilterChange={(filter) => setFilterStatus(filter.status)}
         onSortChange={(by, order) => {
           setSortBy(by);

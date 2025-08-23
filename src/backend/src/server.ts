@@ -15,8 +15,11 @@ async function bootstrap() {
   app.enableCors();
   
   // Serve static files from the React app build directory
-  const clientPath = join(__dirname, '..', '..', 'dist');
+  const clientPath = join(__dirname, '..', '..', '..', 'dist');
+  console.log('Looking for frontend files in:', clientPath);
+ console.log('Frontend directory exists:', existsSync(clientPath));
   if (existsSync(clientPath) && statSync(clientPath).isDirectory()) {
+    console.log('Frontend directory is accessible, setting up static file serving');
     app.use(express.static(clientPath));
     
     // Handle React routing, return all requests to React app
@@ -31,6 +34,8 @@ async function bootstrap() {
         res.sendFile(join(clientPath, 'index.html'));
       }
     });
+  } else {
+    console.log('Frontend directory not found or not accessible, skipping static file serving');
   }
   
   // Start server

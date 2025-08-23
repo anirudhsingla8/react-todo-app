@@ -3,13 +3,13 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
   Container,
   FormControl,
   FormHelperText,
   IconButton,
   InputAdornment,
   InputLabel,
+  Stack,
   OutlinedInput,
   TextField,
   Typography,
@@ -24,7 +24,6 @@ import {
   PersonAdd as PersonAddIcon
 } from '@mui/icons-material';
 import notificationService from './services/notificationService';
-import './App.css';
 
 function Login({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
@@ -177,84 +176,99 @@ function Login({ onLogin }) {
   const handleMouseDownPassword = (event) => event.preventDefault();
 
   return (
-    <div className="app">
-      <Container component="main" maxWidth="xs" sx={{ display: 'flex', alignItems: 'center', minHeight: '100vh' }}>
-        <Card
+    <Container component="main" maxWidth="xs">
+      <Card
+        sx={{
+          p: { xs: 2, sm: 3, md: 4 },
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: 'primary.main', width: 56, height: 56 }}>
+          {isLogin ? <LoginIcon /> : <PersonAddIcon />}
+        </Avatar>
+        <Typography
+          component="h1"
+          variant="h4"
           sx={{
-            width: '100%',
-            boxShadow: 4,
-            borderRadius: 3,
-            overflow: 'visible',
-            position: 'relative',
-            mt: 2,
-            mb: 2
+            fontWeight: 700,
+            background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
           }}
         >
-          <CardContent sx={{ p: 4, pt: 6 }}>
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-              <Avatar sx={{
-                mx: 'auto',
-                mb: 2,
-                bgcolor: 'primary.main',
-                width: 56,
-                height: 56
-              }}>
-                {isLogin ? <LoginIcon /> : <PersonAddIcon />}
-              </Avatar>
-              <Typography
-                variant="h4"
-                component="h1"
-                sx={{
-                  fontWeight: 700,
-                  background: 'linear-gradient(135deg, #2196F3, #21CBF3)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  mb: 1
-                }}
-              >
-                {isLogin ? 'Welcome Back' : 'Create Account'}
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                {isLogin ? 'Sign in to manage your todos' : 'Sign up to start managing your todos'}
-              </Typography>
-            </Box>
-            
-            <Box component="form" onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.target);
-              const values = {
-                username: formData.get('username'),
-                password: formData.get('password'),
-                confirmPassword: formData.get('confirmPassword')
-              };
-              handleSubmit(values);
-            }} noValidate role="form" aria-label={isLogin ? "Login form" : "Sign up form"}>
-              <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                <InputLabel htmlFor="username">Username</InputLabel>
+          {isLogin ? 'Welcome Back' : 'Create Account'}
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          {isLogin ? 'Sign in to manage your todos' : 'Sign up to start managing your todos'}
+        </Typography>
+
+        <Box component="form" onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const values = {
+            username: formData.get('username'),
+            password: formData.get('password'),
+            confirmPassword: formData.get('confirmPassword')
+          };
+          handleSubmit(values);
+        }} noValidate sx={{ width: '100%' }}>
+          <Stack spacing={2}>
+            <TextField
+              id="username"
+              name="username"
+              label="Username"
+              autoComplete="username"
+              autoFocus
+              required
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AccountCircle />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <FormControl fullWidth variant="outlined">
+              <InputLabel htmlFor="password">Password</InputLabel>
+              <OutlinedInput
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                label="Password"
+                required
+                startAdornment={
+                  <InputAdornment position="start">
+                    <Lock />
+                  </InputAdornment>
+                }
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+
+            {!isLogin && (
+              <FormControl fullWidth variant="outlined">
+                <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
                 <OutlinedInput
-                  id="username"
-                  name="username"
-                  type="text"
-                  autoFocus
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <AccountCircle />
-                    </InputAdornment>
-                  }
-                  label="Username"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  label="Confirm Password"
                   required
-                  aria-describedby="username-helper-text"
-                  sx={{ borderRadius: 2 }}
-                />
-                <FormHelperText id="username-helper-text">Please enter your username</FormHelperText>
-              </FormControl>
-              
-              <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                <InputLabel htmlFor="password">Password</InputLabel>
-                <OutlinedInput
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
                   startAdornment={
                     <InputAdornment position="start">
                       <Lock />
@@ -263,100 +277,46 @@ function Login({ onLogin }) {
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
+                        aria-label="toggle confirm password visibility"
+                        onClick={handleClickShowConfirmPassword}
                         onMouseDown={handleMouseDownPassword}
                         edge="end"
-                        aria-expanded={showPassword}
-                        size="small"
                       >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   }
-                  label="Password"
-                  required
-                  aria-describedby="password-helper-text"
-                  sx={{ borderRadius: 2 }}
                 />
-                <FormHelperText id="password-helper-text">Please enter your password</FormHelperText>
               </FormControl>
-              
-              {!isLogin && (
-                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                  <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
-                  <OutlinedInput
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <Lock />
-                      </InputAdornment>
-                    }
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle confirm password visibility"
-                          onClick={handleClickShowConfirmPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          edge="end"
-                          aria-expanded={showConfirmPassword}
-                          size="small"
-                        >
-                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    label="Confirm Password"
-                    required
-                    aria-describedby="confirm-password-helper-text"
-                    sx={{ borderRadius: 2 }}
-                  />
-                  <FormHelperText id="confirm-password-helper-text">Please confirm your password</FormHelperText>
-                </FormControl>
-              )}
-              
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                size="large"
-                disabled={loading}
-                sx={{
-                  mt: 2,
-                  py: 1.5,
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                  boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
-                  borderRadius: 2,
-                  '&:hover': {
-                    background: 'linear-gradient(45deg, #1976D2 30%, #03A9F4 90%)',
-                    boxShadow: '0 4px 8px 3px rgba(33, 203, 243, .4)',
-                  }
-                }}
-              >
-                {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
-              </Button>
-            </Box>
-            
-            <Box sx={{ textAlign: 'center', mt: 3 }}>
-              <Typography variant="body1" color="text.primary">
-                {isLogin ? "Don't have an account? " : "Already have an account? "}
-                <Button
-                  variant="text"
-                  onClick={toggleForm}
-                  sx={{ fontWeight: 700, textTransform: 'none' }}
-                >
-                  {isLogin ? 'Sign Up' : 'Sign In'}
-                </Button>
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
-      </Container>
-    </div>
+            )}
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              disabled={loading}
+              sx={{ py: 1.5, fontSize: '1rem', fontWeight: 600 }}
+            >
+              {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
+            </Button>
+          </Stack>
+        </Box>
+
+        <Box sx={{ textAlign: 'center', mt: 3 }}>
+          <Typography variant="body1" color="text.primary">
+            {isLogin ? "Don't have an account? " : "Already have an account? "}
+            <Button
+              variant="text"
+              onClick={toggleForm}
+              sx={{ fontWeight: 700, textTransform: 'none' }}
+            >
+              {isLogin ? 'Sign Up' : 'Sign In'}
+            </Button>
+          </Typography>
+        </Box>
+      </Card>
+    </Container>
   );
 }
 

@@ -9,7 +9,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     // Initialize SQLite database
-    this.db = new sqlite3.Database('todos.db');
+    this.db = new sqlite3.Database('/app/data/todos.db');
     
     // Create tables if they don't exist
     await this.createTables();

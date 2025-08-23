@@ -34,7 +34,7 @@ import {
   Sort as SortIcon
 } from '@mui/icons-material';
 
-const TodoFilters = ({ todos, onFilterChange, onSortChange, onSearchChange }) => {
+const TodoFilters = ({ todos = [], onFilterChange, onSortChange, onSearchChange }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [sortBy, setSortBy] = useState('createdAt');
@@ -47,16 +47,19 @@ const TodoFilters = ({ todos, onFilterChange, onSortChange, onSearchChange }) =>
   React.useEffect(() => {
     const tagsSet = new Set();
     
-    todos.forEach(todo => {
-      if (todo.tags && Array.isArray(todo.tags)) {
-        todo.tags.forEach(tag => {
-          const normalizedTag = tag.trim().toLowerCase();
-          if (normalizedTag) {
-            tagsSet.add(normalizedTag);
-          }
-        });
-      }
-    });
+    // Ensure todos is an array before using forEach
+    if (Array.isArray(todos)) {
+      todos.forEach(todo => {
+        if (todo.tags && Array.isArray(todo.tags)) {
+          todo.tags.forEach(tag => {
+            const normalizedTag = tag.trim().toLowerCase();
+            if (normalizedTag) {
+              tagsSet.add(normalizedTag);
+            }
+          });
+        }
+      });
+    }
     
     setAvailableTags(Array.from(tagsSet).sort());
   }, [todos]);

@@ -28,8 +28,11 @@ RUN npm run backend:build
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 
-# Change ownership of the app directory to the nodejs user
-RUN chown -R nextjs:nodejs /app
+# Create a directory for the database and set permissions
+RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
+
+# Change ownership and permissions of the app directory to the nodejs user
+RUN chmod -R 755 /app && chown -R nextjs:nodejs /app
 USER nextjs
 
 # Expose port 3000

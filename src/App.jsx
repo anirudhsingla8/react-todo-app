@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ThemeProvider, CssBaseline } from '@mui/material';
+import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import Login from './Login'
 import Dashboard from './components/Dashboard'
 import Notification from './components/Notification'
@@ -172,7 +172,15 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className="app">
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        p: { xs: 1, sm: 2, md: 3 }
+      }}>
         <Notification />
         {user ? (
           <Dashboard
@@ -200,7 +208,7 @@ function App() {
         ) : (
           <Login onLogin={handleLogin} />
         )}
-      </div>
+      </Box>
     </ThemeProvider>
   )
 }
