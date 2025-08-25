@@ -1,7 +1,6 @@
 import {
   AppBar,
   Avatar,
-  Badge,
   Box,
   Card,
   CardContent,
@@ -9,19 +8,18 @@ import {
   CssBaseline,
   Grid,
   IconButton,
-  Stack,
   Toolbar,
-  Typography,
-  LinearProgress
+  Typography
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
   Logout as LogoutIcon,
   ListAlt as ListAltIcon,
+  Add as AddIcon
 } from '@mui/icons-material';
 import TodoItem from './TodoItem';
 import AddTodoForm from './AddTodoForm';
 import TodoFilters from './TodoFilters';
+import TodoStats from './TodoStats';
 
 const Dashboard = ({ 
   user, 
@@ -36,26 +34,24 @@ const Dashboard = ({
   onUpdateTodo, 
   onDeleteTodo 
 }) => {
-  const completed = todos.filter(todo => todo.completed).length;
-  const completionRate = todos.length > 0 ? Math.round((completed / todos.length) * 100) : 0;
-
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
+    <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
         sx={{
-          background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          bgcolor: 'background.paper',
+          color: 'text.primary'
         }}
       >
         <Toolbar>
-          <DashboardIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Todo Dashboard
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+            TodoApp
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography>{user.username}</Typography>
-            <Avatar sx={{ bgcolor: 'secondary.light', color: 'secondary.dark' }}>
+            <Avatar sx={{ bgcolor: 'primary.main' }}>
               {user.username.charAt(0).toUpperCase()}
             </Avatar>
             <IconButton
@@ -68,78 +64,68 @@ const Dashboard = ({
         </Toolbar>
       </AppBar>
       
-      <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: 'background.default' }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <Container maxWidth="xl">
-          <Grid container spacing={3}>
-            {/* Left Column: Add and Filter */}
-            <Grid item xs={12} md={4}>
-              <Stack spacing={3}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>Add a new Todo</Typography>
-                    <AddTodoForm user={user} onAddTodo={onAddTodo} />
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>Filter & Sort</Typography>
-                    <TodoFilters
-                      todos={todos}
-                      onFilterChange={onFilterChange}
-                      onSortChange={onSortChange}
-                      onSearchChange={onSearchChange}
-                    />
-                  </CardContent>
-                </Card>
-                 <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>Progress</Typography>
-                     <Box sx={{ width: '100%', mt: 1 }}>
-                        <Typography variant="body2" color="text.secondary" gutterBottom align="center">
-                          Completion Rate: {completionRate}%
-                        </Typography>
-                        <LinearProgress variant="determinate" value={completionRate} sx={{ height: 10, borderRadius: 5 }} />
+          <Grid container spacing={4}>
+            {/* Main Content */}
+            <Grid item xs={12} md={8}>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Card>
+                    <CardContent>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <AddIcon sx={{ mr: 1, color: 'primary.main' }} />
+                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Add New Todo</Typography>
                       </Box>
-                  </CardContent>
-                </Card>
-              </Stack>
+                      <AddTodoForm user={user} onAddTodo={onAddTodo} />
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12}>
+                  <Card>
+                    <CardContent>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <ListAltIcon sx={{ mr: 1, color: 'primary.main' }} />
+                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Your Todos</Typography>
+                      </Box>
+                      {loading ? (
+                        <Typography color="text.secondary">Loading...</Typography>
+                      ) : filteredTodos.length > 0 ? (
+                        <Box sx={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto', p: 0.5 }}>
+                          {filteredTodos.map(todo => (
+                            <TodoItem
+                              key={todo.id}
+                              todo={todo}
+                              onUpdate={onUpdateTodo}
+                              onDelete={onDeleteTodo}
+                            />
+                          ))}
+                        </Box>
+                      ) : (
+                        <Typography color="text.secondary">No todos found.</Typography>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
             </Grid>
 
-            {/* Right Column: Todo List */}
-            <Grid item xs={12} md={8}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <ListAltIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h6">Your Todos</Typography>
-                    <Badge badgeContent={filteredTodos.length} color="primary" sx={{ ml: 2 }} />
-                  </Box>
-                  {loading ? (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <Typography color="text.secondary">Loading todos...</Typography>
-                    </Box>
-                  ) : filteredTodos.length > 0 ? (
-                    <Box sx={{ maxHeight: 'calc(100vh - 300px)', overflowY: 'auto', p: 0.5 }}>
-                      {filteredTodos.map(todo => (
-                        <TodoItem
-                          key={todo.id}
-                          todo={todo}
-                          onUpdate={onUpdateTodo}
-                          onDelete={onDeleteTodo}
-                        />
-                      ))}
-                    </Box>
-                  ) : (
-                    <Box sx={{ textAlign: 'center', py: 8 }}>
-                      <Typography variant="h5" sx={{ mb: 1 }}>No todos found</Typography>
-                      <Typography color="text.secondary">
-                        {todos.length > 0 ? 'Try adjusting your filters.' : 'Add a new todo to get started!'}
-                      </Typography>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
+            {/* Sidebar */}
+            <Grid item xs={12} md={4}>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <TodoStats todos={todos} />
+                </Grid>
+                <Grid item xs={12}>
+                  <TodoFilters
+                    todos={todos}
+                    onFilterChange={onFilterChange}
+                    onSortChange={onSortChange}
+                    onSearchChange={onSearchChange}
+                  />
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Container>

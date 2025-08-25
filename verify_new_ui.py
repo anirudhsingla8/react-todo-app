@@ -10,39 +10,36 @@ async def main():
 
         # Go to the login page
         await page.goto("http://localhost:5173")
+        await page.screenshot(path="login-page-new.png")
 
-        # Generate random user credentials
+        # Sign up and log in
         random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
         username = f"testuser_{random_suffix}"
         password = f"Password123!"
-
-        # Sign up a new user
-        await page.get_by_role("button", name="Sign Up").click()
+        await page.get_by_role("button", name="Don't have an account? Sign Up").click()
         await page.get_by_label("Username").fill(username)
         await page.get_by_label("Password").fill(password)
         await page.get_by_label("Confirm Password").fill(password)
         await page.get_by_role("button", name="Create Account").click()
+        await expect(page.get_by_text("Signup successful! Please log in.")).to_be_visible()
 
-        # Wait for the success notification
-        await expect(page.get_by_text("Account created successfully!")).to_be_visible()
-
-        # Log in
         await page.get_by_label("Username").fill(username)
         await page.get_by_label("Password").fill(password)
         await page.get_by_role("button", name="Sign In").click()
+        await expect(page.get_by_text("TodoApp")).to_be_visible()
 
-        # Wait for the dashboard to load
-        await expect(page.get_by_text("Todo Dashboard")).to_be_visible()
+        # Dashboard screenshot
+        await page.screenshot(path="dashboard-new.png")
 
-        # Take a screenshot of the FilterControls component
-        filter_controls = page.locator('text=Search & Filters').first.locator('xpath=..').first.locator('xpath=..').first
-        await filter_controls.screenshot(path="filter-controls.png")
+        # Add a todo
+        await page.get_by_label("What needs to be done?").fill("My new todo")
+        await page.get_by_role("button", name="Add Todo").click()
+        await expect(page.get_by_text("My new todo")).to_be_visible()
+        await page.screenshot(path="dashboard-with-todo-new.png")
 
-        # Interact with the new ToggleButtonGroup
+        # Filter todos
         await page.get_by_role("button", name="Completed").click()
-
-        # Take a screenshot of the FilterControls component after interaction
-        await filter_controls.screenshot(path="filter-controls-completed.png")
+        await page.screenshot(path="dashboard-filtered-new.png")
 
         await browser.close()
 

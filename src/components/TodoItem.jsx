@@ -2,21 +2,19 @@ import React, { useState } from 'react';
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Checkbox,
   Chip,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   FormControl,
+  Grid,
   IconButton,
-  InputAdornment,
   InputLabel,
+  ListItem,
+  ListItemText,
   MenuItem,
-  OutlinedInput,
   Select,
   TextField,
   Typography,
@@ -27,147 +25,161 @@ import {
   Delete as DeleteIcon,
   Save as SaveIcon,
   Close as CloseIcon,
-  CalendarToday as CalendarIcon
+  CalendarToday as CalendarIcon,
 } from '@mui/icons-material';
 import notificationService from '../services/notificationService';
-
 
 const TodoItem = ({ todo, onUpdate, onDelete }) => {
   const theme = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState(todo.text);
-  const [editedDueDate, setEditedDueDate] = useState(todo.dueDate ? new Date(todo.dueDate) : null);
+  const [editedDueDate, setEditedDueDate] = useState(todo.dueDate ? new Date(todo.dueDate).toISOString().split('T')[0] : '');
   const [editedPriority, setEditedPriority] = useState(todo.priority || 'medium');
   const [editedNotes, setEditedNotes] = useState(todo.notes || '');
   const [editedTags, setEditedTags] = useState(todo.tags ? todo.tags.join(', ') : '');
 
   const handleToggleComplete = async () => {
     try {
-      const response = await fetch('/api/todos', {
+      const response = await fetch(`/api/todos/${todo.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          id: todo.id, 
-          completed: !todo.completed 
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: !todo.completed })
       });
-      
       if (response.ok) {
-        onUpdate(todo.id, { completed: !todo.completed });
+        onUpdate(todo.id, { ...todo, completed: !todo.completed });
       } else {
-        const error = await response.json();
-        notificationService.error(error.message || 'Failed to update todo');
+        notificationService.error('Failed to update todo.');
       }
     } catch (error) {
-      notificationService.error('Network error. Please try again.');
+      notificationService.error('Network error.');
     }
   };
 
   const handleSaveEdit = async () => {
+    const tagsArray = editedTags.split(',').map(tag => tag.trim()).filter(Boolean);
+    const updatedTodo = {
+      text: editedText,
+      dueDate: editedDueDate,
+      priority: editedPriority,
+      notes: editedNotes,
+      tags: tagsArray,
+    };
+
     try {
-      const tagsArray = editedTags.split(',').map(tag => tag.trim()).filter(tag => tag);
-      
       const response = await fetch(`/api/todos/${todo.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: editedText,
-          dueDate: editedDueDate ? editedDueDate.toISOString() : null,
-          priority: editedPriority,
-          notes: editedNotes,
-          tags: tagsArray
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedTodo)
       });
-      
       if (response.ok) {
-        const updatedTodo = {
-          ...todo,
-          text: editedText,
-          dueDate: editedDueDate,
-          priority: editedPriority,
-          notes: editedNotes,
-          tags: tagsArray
-        };
-        onUpdate(todo.id, updatedTodo);
+        onUpdate(todo.id, { ...todo, ...updatedTodo });
         setIsEditing(false);
         notificationService.success('Todo updated successfully!');
       } else {
-        const error = await response.json();
-        notificationService.error(error.message || 'Failed to update todo');
+        notificationService.error('Failed to update todo.');
       }
     } catch (error) {
-      notificationService.error('Network error. Please try again.');
+      notificationService.error('Network error.');
     }
   };
 
   const handleDelete = async () => {
     try {
-      const response = await fetch('/api/todos', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: todo.id })
-      });
-      
+      const response = await fetch(`/api/todos/${todo.id}`, { method: 'DELETE' });
       if (response.ok) {
         onDelete(todo.id);
         notificationService.success('Todo deleted successfully!');
       } else {
-        const error = await response.json();
-        notificationService.error(error.message || 'Failed to delete todo');
+        notificationService.error('Failed to delete todo.');
       }
     } catch (error) {
-      notificationService.error('Network error. Please try again.');
+      notificationService.error('Network error.');
     }
   };
 
-  const formatDate = (date) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString();
+  const priorityColor = {
+    high: theme.palette.error.main,
+    medium: theme.palette.warning.main,
+    low: theme.palette.success.main,
   };
 
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  return (
+    <>
+      <ListItem
+        divider
+        sx={{
+          bgcolor: 'background.paper',
+          p: 2,
+          borderLeft: `4px solid ${priorityColor[todo.priority] || theme.palette.grey[400]}`,
+          opacity: todo.completed ? 0.6 : 1,
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            bgcolor: theme.palette.action.hover,
+          },
+        }}
+      >
+        <Checkbox
+          edge="start"
+          checked={todo.completed}
+          onChange={handleToggleComplete}
+          tabIndex={-1}
+          disableRipple
+        />
+        <ListItemText
+          primary={
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: 'bold', textDecoration: todo.completed ? 'line-through' : 'none' }}
+            >
+              {todo.text}
+            </Typography>
+          }
+          secondary={
+            <Box component="span" sx={{ display: 'flex', flexDirection: 'column', mt: 1 }}>
+              {todo.notes && <Typography variant="body2" color="text.secondary">{todo.notes}</Typography>}
+              <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                {todo.dueDate && (
+                  <Chip
+                    icon={<CalendarIcon />}
+                    label={new Date(todo.dueDate).toLocaleDateString()}
+                    size="small"
+                  />
+                )}
+                {todo.tags?.map(tag => <Chip key={tag} label={tag} size="small" />)}
+              </Box>
+            </Box>
+          }
+        />
+        <Box>
+          <IconButton onClick={() => setIsEditing(true)}><EditIcon /></IconButton>
+          <IconButton onClick={handleDelete}><DeleteIcon /></IconButton>
+        </Box>
+      </ListItem>
 
-  const handleOpenDeleteDialog = () => {
-    setOpenDeleteDialog(true);
-  };
-
-  const handleCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-  };
-
-  if (isEditing) {
-    return (
-      <Card sx={{ mb: 2 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              fullWidth
-              label="Todo text"
-              value={editedText}
-              onChange={(e) => setEditedText(e.target.value)}
-              variant="outlined"
-            />
-            
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+      <Dialog open={isEditing} onClose={() => setIsEditing(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Todo</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Todo text"
+                value={editedText}
+                onChange={(e) => setEditedText(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label="Due Date"
                 type="date"
-                value={editedDueDate ? new Date(editedDueDate).toISOString().split('T')[0] : ''}
-                onChange={(e) => setEditedDueDate(e.target.value ? new Date(e.target.value) : null)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                variant="outlined"
+                value={editedDueDate}
+                onChange={(e) => setEditedDueDate(e.target.value)}
+                InputLabelProps={{ shrink: true }}
               />
-              
-              <FormControl sx={{ minWidth: 120 }}>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
                 <InputLabel>Priority</InputLabel>
                 <Select
                   value={editedPriority}
@@ -179,164 +191,30 @@ const TodoItem = ({ todo, onUpdate, onDelete }) => {
                   <MenuItem value="high">High</MenuItem>
                 </Select>
               </FormControl>
-            </Box>
-            
-            <TextField
-              fullWidth
-              label="Additional notes"
-              multiline
-              rows={3}
-              value={editedNotes}
-              onChange={(e) => setEditedNotes(e.target.value)}
-              variant="outlined"
-            />
-            
-            <TextField
-              fullWidth
-              label="Tags (comma separated)"
-              value={editedTags}
-              onChange={(e) => setEditedTags(e.target.value)}
-              variant="outlined"
-            />
-            
-            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-              <Button
-                variant="contained"
-                startIcon={<SaveIcon />}
-                onClick={handleSaveEdit}
-                color="primary"
-              >
-                Save
-              </Button>
-              <Button
-                startIcon={<CloseIcon />}
-                onClick={() => setIsEditing(false)}
-                color="secondary"
-              >
-                Cancel
-              </Button>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <>
-      <Card
-        sx={{
-          mb: 2,
-          borderLeft: `4px solid ${theme.palette.priority[todo.priority] || theme.palette.text.disabled}`,
-          opacity: todo.completed ? 0.7 : 1
-        }}
-      >
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Checkbox
-                checked={todo.completed}
-                onChange={handleToggleComplete}
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Tags (comma-separated)"
+                value={editedTags}
+                onChange={(e) => setEditedTags(e.target.value)}
               />
-              <Typography
-                variant="body1"
-                sx={{
-                  textDecoration: todo.completed ? 'line-through' : 'none',
-                  fontWeight: todo.completed ? 'normal' : 'bold'
-                }}
-              >
-                {todo.text}
-              </Typography>
-            </Box>
-            
-            <Box>
-              <IconButton
-                size="small"
-                onClick={() => setIsEditing(true)}
-                aria-label={`Edit todo: ${todo.text}`}
-              >
-                <EditIcon />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={handleOpenDeleteDialog}
-                aria-label={`Delete todo: ${todo.text}`}
-                sx={{ color: 'error.main' }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          </Box>
-          
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-            {todo.dueDate && (
-              <Chip
-                icon={<CalendarIcon />}
-                label={`Due: ${formatDate(todo.dueDate)}`}
-                size="small"
-                color="primary"
-                variant="outlined"
-                aria-label={`Due date: ${formatDate(todo.dueDate)}`}
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Notes"
+                multiline
+                rows={4}
+                value={editedNotes}
+                onChange={(e) => setEditedNotes(e.target.value)}
               />
-            )}
-            
-            {todo.priority && (
-              <Chip
-                label={todo.priority}
-                size="small"
-                sx={{
-                  backgroundColor: theme.palette.priority[todo.priority] || theme.palette.grey[500],
-                  color: '#fff'
-                }}
-                aria-label={`Priority: ${todo.priority}`}
-              />
-            )}
-            
-            {todo.tags && todo.tags.length > 0 && (
-              todo.tags.map((tag, index) => (
-                <Chip
-                  label={tag}
-                  size="small"
-                  key={index}
-                  variant="outlined"
-                  aria-label={`Tag: ${tag}`}
-                />
-              ))
-            )}
-          </Box>
-          
-          {todo.notes && (
-            <Typography variant="body2" color="text.secondary">
-              {todo.notes}
-            </Typography>
-          )}
-        </CardContent>
-      </Card>
-      
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
-      >
-        <DialogTitle id="delete-dialog-title">
-          Confirm Delete
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="delete-dialog-description">
-            Are you sure you want to delete this todo? This action cannot be undone.
-          </DialogContentText>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={() => {
-            handleDelete();
-            handleCloseDeleteDialog();
-          }} color="error" variant="contained">
-            Delete
-          </Button>
+          <Button onClick={() => setIsEditing(false)} startIcon={<CloseIcon />}>Cancel</Button>
+          <Button onClick={handleSaveEdit} variant="contained" startIcon={<SaveIcon />}>Save</Button>
         </DialogActions>
       </Dialog>
     </>
