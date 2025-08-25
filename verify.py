@@ -11,9 +11,6 @@ async def main():
         # Go to the login page
         await page.goto("http://localhost:5173")
 
-        # Take a screenshot of the login page
-        await page.screenshot(path="login-page.png")
-
         # Generate random user credentials
         random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
         username = f"testuser_{random_suffix}"
@@ -37,18 +34,15 @@ async def main():
         # Wait for the dashboard to load
         await expect(page.get_by_text("Todo Dashboard")).to_be_visible()
 
-        # Take a screenshot of the dashboard
-        await page.screenshot(path="dashboard-initial.png")
+        # Take a screenshot of the FilterControls component
+        filter_controls = page.locator('text=Search & Filters').first.locator('xpath=..').first.locator('xpath=..').first
+        await filter_controls.screenshot(path="filter-controls.png")
 
-        # Add a new todo
-        await page.get_by_label("What needs to be done?").fill("My first todo")
-        await page.get_by_role("button", name="Add Todo").click()
+        # Interact with the new ToggleButtonGroup
+        await page.get_by_role("button", name="Completed").click()
 
-        # Wait for the todo to appear
-        await expect(page.get_by_text("My first todo")).to_be_visible()
-
-        # Take a screenshot of the dashboard with the new todo
-        await page.screenshot(path="dashboard-with-todo.png")
+        # Take a screenshot of the FilterControls component after interaction
+        await filter_controls.screenshot(path="filter-controls-completed.png")
 
         await browser.close()
 

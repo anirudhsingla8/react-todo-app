@@ -15,16 +15,20 @@ import {
   TextField,
   Typography,
   Avatar,
-  useTheme
+  useTheme,
+  ToggleButtonGroup,
+  ToggleButton
 } from '@mui/material';
 import {
   Search as SearchIcon,
   Close as CloseIcon,
-  Assignment as AssignmentIcon,
   FilterList as FilterIcon,
   Label as LabelIcon,
   PriorityHigh as PriorityHighIcon,
-  Sort as SortIcon
+  Sort as SortIcon,
+  CheckCircle as CompletedIcon,
+  RadioButtonUnchecked as PendingIcon,
+  AllInclusive as AllIcon,
 } from '@mui/icons-material';
 
 const FilterControls = ({ todos = [], onFilterChange, onSortChange, onSearchChange }) => {
@@ -59,9 +63,11 @@ const FilterControls = ({ todos = [], onFilterChange, onSortChange, onSearchChan
     onSearchChange(term);
   };
 
-  const handleFilterStatus = (status) => {
-    setFilterStatus(status);
-    onFilterChange({ status, priority: filterPriority, tags: filterTags });
+  const handleFilterStatus = (event, newStatus) => {
+    if (newStatus !== null) {
+      setFilterStatus(newStatus);
+      onFilterChange({ status: newStatus, priority: filterPriority, tags: filterTags });
+    }
   };
 
   const handleFilterPriority = (priority) => {
@@ -88,10 +94,10 @@ const FilterControls = ({ todos = [], onFilterChange, onSortChange, onSearchChan
     <Card variant="outlined" sx={{ boxShadow: 2 }}>
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Avatar sx={{ bgcolor: theme.palette.secondary.main, mr: 1 }}>
+          <Avatar sx={{ bgcolor: theme.palette.secondary.main, mr: 1.5 }}>
             <FilterIcon />
           </Avatar>
-          <Typography variant="h6" component="div">
+          <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
             Search & Filters
           </Typography>
         </Box>
@@ -100,7 +106,7 @@ const FilterControls = ({ todos = [], onFilterChange, onSortChange, onSearchChan
           <Grid item xs={12}>
             <TextField
               fullWidth
-              placeholder="Search todos..."
+              placeholder="Search todos by text, notes, or tags..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
               InputProps={{
@@ -127,38 +133,42 @@ const FilterControls = ({ todos = [], onFilterChange, onSortChange, onSearchChan
 
         <Divider sx={{ my: 2 }} />
 
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <Card variant="outlined" sx={{ height: '100%' }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={7}>
+            <Card variant="outlined" sx={{ height: '100%', p: 1 }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Avatar sx={{ bgcolor: theme.palette.primary.dark, width: 32, height: 32, mr: 1 }}>
-                    <FilterIcon sx={{ fontSize: 20 }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
+                  <Avatar sx={{ bgcolor: theme.palette.primary.dark, width: 36, height: 36, mr: 1.5 }}>
+                    <FilterIcon sx={{ fontSize: 22 }} />
                   </Avatar>
-                  <Typography variant="subtitle1" component="div">
+                  <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: theme.palette.primary.dark }}>
                     Filters
                   </Typography>
                 </Box>
 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Status</InputLabel>
-                      <Select
-                        value={filterStatus}
-                        onChange={(e) => handleFilterStatus(e.target.value)}
-                        label="Status"
-                        startAdornment={
-                          <InputAdornment position="start">
-                            <AssignmentIcon />
-                          </InputAdornment>
-                        }
-                      >
-                        <MenuItem value="all">All Todos</MenuItem>
-                        <MenuItem value="completed">Completed</MenuItem>
-                        <MenuItem value="pending">Pending</MenuItem>
-                      </Select>
-                    </FormControl>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>Status</Typography>
+                    <ToggleButtonGroup
+                      value={filterStatus}
+                      exclusive
+                      onChange={handleFilterStatus}
+                      aria-label="text alignment"
+                      fullWidth
+                    >
+                      <ToggleButton value="all" aria-label="all">
+                        <AllIcon sx={{ mr: 1 }} />
+                        All
+                      </ToggleButton>
+                      <ToggleButton value="completed" aria-label="completed">
+                        <CompletedIcon sx={{ mr: 1 }} />
+                        Completed
+                      </ToggleButton>
+                      <ToggleButton value="pending" aria-label="pending">
+                        <PendingIcon sx={{ mr: 1 }} />
+                        Pending
+                      </ToggleButton>
+                    </ToggleButtonGroup>
                   </Grid>
 
                   <Grid item xs={12} sm={6}>
@@ -221,7 +231,7 @@ const FilterControls = ({ todos = [], onFilterChange, onSortChange, onSearchChan
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid item xs={12} sm={6}>
                     <FormControl fullWidth>
                       <InputLabel>Tags</InputLabel>
                       <Select
@@ -257,14 +267,14 @@ const FilterControls = ({ todos = [], onFilterChange, onSortChange, onSearchChan
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Card variant="outlined" sx={{ height: '100%' }}>
+          <Grid item xs={12} md={5}>
+            <Card variant="outlined" sx={{ height: '100%', p: 1 }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Avatar sx={{ bgcolor: theme.palette.success.dark, width: 32, height: 32, mr: 1 }}>
-                    <SortIcon sx={{ fontSize: 20 }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
+                  <Avatar sx={{ bgcolor: theme.palette.success.dark, width: 36, height: 36, mr: 1.5 }}>
+                    <SortIcon sx={{ fontSize: 22 }} />
                   </Avatar>
-                  <Typography variant="subtitle1" component="div">
+                  <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: theme.palette.success.dark }}>
                     Sorting
                   </Typography>
                 </Box>
