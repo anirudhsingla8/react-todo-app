@@ -68,7 +68,7 @@ function Login({ onLogin }) {
         localStorage.setItem('todoUser', JSON.stringify(data.user));
         onLogin(data.user);
       } else {
-        notificationService.error(data.message || 'Login failed.');
+        notificationService.error(data.message || 'Login failed. Please check your credentials.');
       }
     } catch (error) {
       notificationService.error('Network error. Please try again.');

@@ -27,11 +27,14 @@ export class UsersService {
 
   async validateUser(username: string, password: string): Promise<User | null> {
     const user = await this.findOneByUsername(username);
-    if (user && user.password === password) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return user;
+    if (!user) {
+      throw new Error('User not found');
     }
-    return null;
+    if (user.password !== password) {
+      throw new Error('Incorrect password');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user;
+    return user;
   }
 }
