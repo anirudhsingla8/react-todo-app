@@ -18,7 +18,7 @@ const theme = createTheme({
     error: {
       main: '#F44336',
       light: '#E57373',
-      dark: '#D32F',
+      dark: '#D32F2F',
       contrastText: '#ffffff',
     },
     warning: {
@@ -28,9 +28,9 @@ const theme = createTheme({
       contrastText: '#000000',
     },
     info: {
-      main: '#2196F3',
+      main: '#03A9F4',
       light: '#64B5F6',
-      dark: '#1976D2',
+      dark: '#0288D1',
       contrastText: '#ffffff',
     },
     success: {
@@ -39,13 +39,22 @@ const theme = createTheme({
       dark: '#388E3C',
       contrastText: '#ffffff',
     },
+    priority: {
+      high: '#F44336',
+      medium: '#FF9800',
+      low: '#4CAF50',
+    },
+    gradients: {
+      primary: 'linear-gradient(45deg, #2196F3 30%, #9C27B0 90%)',
+      secondary: 'linear-gradient(45deg, #FF9800 30%, #F44336 90%)',
+    },
     background: {
       default: '#f0f2f5',
       paper: '#ffffff',
     },
     text: {
       primary: '#212121',
-      secondary: '#7575',
+      secondary: '#757575',
       disabled: '#9E9E9E',
     },
   },
@@ -117,7 +126,7 @@ const theme = createTheme({
         contained: {
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           '&:hover': {
-            boxShadow: '0 4px 8px rgba(0, 0, 0.15)',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
           },
         },
       },

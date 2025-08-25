@@ -13,7 +13,8 @@ import {
   OutlinedInput,
   TextField,
   Typography,
-  Avatar
+  Avatar,
+  useTheme
 } from '@mui/material';
 import {
   AccountCircle,
@@ -26,6 +27,7 @@ import {
 import notificationService from './services/notificationService';
 
 function Login({ onLogin }) {
+  const theme = useTheme();
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
   const [loading, setLoading] = useState(false);
 
@@ -193,7 +195,7 @@ function Login({ onLogin }) {
           variant="h4"
           sx={{
             fontWeight: 700,
-            background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            background: theme.palette.gradients.primary,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}

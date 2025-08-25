@@ -1,13 +1,14 @@
 import React from 'react';
 import {
   Box,
- Card,
+  Card,
   CardContent,
   Grid,
   Typography,
   LinearProgress,
   Chip,
-  Avatar
+  Avatar,
+  useTheme
 } from '@mui/material';
 import {
   Assignment as TotalIcon,
@@ -21,6 +22,8 @@ import {
 } from '@mui/icons-material';
 
 const TodoStats = ({ todos }) => {
+  const theme = useTheme();
+
   // Calculate statistics
   const totalTodos = todos.length;
   const completedTodos = todos.filter(todo => todo.completed).length;
@@ -74,21 +77,6 @@ const TodoStats = ({ todos }) => {
   // Count todos with tags
   const taggedTodos = todos.filter(todo => todo.tags && todo.tags.length > 0).length;
   
-  // Priority colors
-  const priorityColors = {
-    high: '#f44336',
-    medium: '#ff9800',
-    low: '#4caf50'
-  };
-  
-  // Due date colors
-  const dueDateColors = {
-    overdue: '#f44336',
-    dueToday: '#ff9800',
-    dueSoon: '#2196f3',
-    noDueDate: '#9e9e9e'
-  };
-  
   return (
     <Box sx={{ width: '100%' }}>
       <Grid container spacing={3}>
@@ -110,7 +98,7 @@ const TodoStats = ({ todos }) => {
                 }}
               >
                 <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <Avatar sx={{ bgcolor: '#2196f3', mb: 1 }}>
+                  <Avatar sx={{ bgcolor: theme.palette.primary.main, mb: 1 }}>
                     <TotalIcon />
                   </Avatar>
                   <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -130,7 +118,7 @@ const TodoStats = ({ todos }) => {
                   height: '100%', 
                   display: 'flex', 
                   flexDirection: 'column',
-                  borderLeft: `4px solid #4caf50`,
+                  borderLeft: `4px solid ${theme.palette.success.main}`,
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-4px)',
@@ -139,7 +127,7 @@ const TodoStats = ({ todos }) => {
                 }}
               >
                 <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <Avatar sx={{ bgcolor: '#4caf50', mb: 1 }}>
+                  <Avatar sx={{ bgcolor: theme.palette.success.main, mb: 1 }}>
                     <CompletedIcon />
                   </Avatar>
                   <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -159,7 +147,7 @@ const TodoStats = ({ todos }) => {
                   height: '100%', 
                   display: 'flex', 
                   flexDirection: 'column',
-                  borderLeft: `4px solid #ff9800`,
+                  borderLeft: `4px solid ${theme.palette.warning.main}`,
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-4px)',
@@ -168,7 +156,7 @@ const TodoStats = ({ todos }) => {
                 }}
               >
                 <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <Avatar sx={{ bgcolor: '#ff9800', mb: 1 }}>
+                  <Avatar sx={{ bgcolor: theme.palette.warning.main, mb: 1 }}>
                     <PendingIcon />
                   </Avatar>
                   <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -197,7 +185,7 @@ const TodoStats = ({ todos }) => {
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                    <Avatar sx={{ bgcolor: '#9c27b0', mr: 1 }}>
+                    <Avatar sx={{ bgcolor: theme.palette.secondary.main, mr: 1 }}>
                       <TotalIcon />
                     </Avatar>
                     <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
@@ -207,13 +195,11 @@ const TodoStats = ({ todos }) => {
                   <LinearProgress 
                     variant="determinate" 
                     value={completionPercentage} 
+                    color="secondary"
                     sx={{ 
                       height: 10, 
                       borderRadius: 5,
-                      backgroundColor: '#e0e0e0',
-                      '& .MuiLinearProgress-bar': {
-                        backgroundColor: '#9c27b0'
-                      }
+                      backgroundColor: theme.palette.grey[300],
                     }} 
                   />
                   <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
@@ -230,7 +216,7 @@ const TodoStats = ({ todos }) => {
           <Card variant="outlined">
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar sx={{ bgcolor: '#f5057', mr: 1 }}>
+                <Avatar sx={{ bgcolor: theme.palette.secondary.main, mr: 1 }}>
                   <PriorityIcon />
                 </Avatar>
                 <Typography variant="h6" component="div">
@@ -245,7 +231,7 @@ const TodoStats = ({ todos }) => {
                     sx={{ 
                       height: '100%', 
                       textAlign: 'center',
-                      borderLeft: `4px solid ${priorityColors.high}`,
+                      borderLeft: `4px solid ${theme.palette.priority.high}`,
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
                         transform: 'translateY(-2px)',
@@ -254,14 +240,14 @@ const TodoStats = ({ todos }) => {
                     }}
                   >
                     <CardContent>
-                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: priorityColors.high }}>
+                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: theme.palette.priority.high }}>
                         {priorityCounts.high}
                       </Typography>
                       <Chip 
                         label="High" 
                         size="small" 
                         sx={{ 
-                          backgroundColor: priorityColors.high,
+                          backgroundColor: theme.palette.priority.high,
                           color: 'white',
                           fontWeight: 'bold'
                         }} 
@@ -276,7 +262,7 @@ const TodoStats = ({ todos }) => {
                     sx={{ 
                       height: '100%', 
                       textAlign: 'center',
-                      borderLeft: `4px solid ${priorityColors.medium}`,
+                      borderLeft: `4px solid ${theme.palette.priority.medium}`,
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
                         transform: 'translateY(-2px)',
@@ -285,14 +271,14 @@ const TodoStats = ({ todos }) => {
                     }}
                   >
                     <CardContent>
-                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: priorityColors.medium }}>
+                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: theme.palette.priority.medium }}>
                         {priorityCounts.medium}
                       </Typography>
                       <Chip 
                         label="Medium" 
                         size="small" 
                         sx={{ 
-                          backgroundColor: priorityColors.medium,
+                          backgroundColor: theme.palette.priority.medium,
                           color: 'white',
                           fontWeight: 'bold'
                         }} 
@@ -307,7 +293,7 @@ const TodoStats = ({ todos }) => {
                     sx={{ 
                       height: '100%', 
                       textAlign: 'center',
-                      borderLeft: `4px solid ${priorityColors.low}`,
+                      borderLeft: `4px solid ${theme.palette.priority.low}`,
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
                         transform: 'translateY(-2px)',
@@ -316,14 +302,14 @@ const TodoStats = ({ todos }) => {
                     }}
                   >
                     <CardContent>
-                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: priorityColors.low }}>
+                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: theme.palette.priority.low }}>
                         {priorityCounts.low}
                       </Typography>
                       <Chip 
                         label="Low" 
                         size="small" 
                         sx={{ 
-                          backgroundColor: priorityColors.low,
+                          backgroundColor: theme.palette.priority.low,
                           color: 'white',
                           fontWeight: 'bold'
                         }} 
@@ -341,7 +327,7 @@ const TodoStats = ({ todos }) => {
           <Card variant="outlined">
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar sx={{ bgcolor: '#3f51b5', mr: 1 }}>
+                <Avatar sx={{ bgcolor: theme.palette.info.main, mr: 1 }}>
                   <TodayIcon />
                 </Avatar>
                 <Typography variant="h6" component="div">
@@ -356,7 +342,7 @@ const TodoStats = ({ todos }) => {
                     sx={{ 
                       height: '100%', 
                       textAlign: 'center',
-                      borderLeft: `4px solid ${dueDateColors.overdue}`,
+                      borderLeft: `4px solid ${theme.palette.error.main}`,
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
                         transform: 'translateY(-2px)',
@@ -365,10 +351,10 @@ const TodoStats = ({ todos }) => {
                     }}
                   >
                     <CardContent>
-                      <Avatar sx={{ bgcolor: dueDateColors.overdue, width: 32, height: 32, mx: 'auto', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: theme.palette.error.main, width: 32, height: 32, mx: 'auto', mb: 1 }}>
                         <OverdueIcon sx={{ fontSize: 20 }} />
                       </Avatar>
-                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: dueDateColors.overdue }}>
+                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: theme.palette.error.main }}>
                         {dueDateStats.overdue}
                       </Typography>
                       <Typography variant="caption" display="block" color="text.secondary">
@@ -384,7 +370,7 @@ const TodoStats = ({ todos }) => {
                     sx={{ 
                       height: '100%', 
                       textAlign: 'center',
-                      borderLeft: `4px solid ${dueDateColors.dueToday}`,
+                      borderLeft: `4px solid ${theme.palette.warning.main}`,
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
                         transform: 'translateY(-2px)',
@@ -393,10 +379,10 @@ const TodoStats = ({ todos }) => {
                     }}
                   >
                     <CardContent>
-                      <Avatar sx={{ bgcolor: dueDateColors.dueToday, width: 32, height: 32, mx: 'auto', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: theme.palette.warning.main, width: 32, height: 32, mx: 'auto', mb: 1 }}>
                         <TodayIcon sx={{ fontSize: 20 }} />
                       </Avatar>
-                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: dueDateColors.dueToday }}>
+                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: theme.palette.warning.main }}>
                         {dueDateStats.dueToday}
                       </Typography>
                       <Typography variant="caption" display="block" color="text.secondary">
@@ -412,7 +398,7 @@ const TodoStats = ({ todos }) => {
                     sx={{ 
                       height: '100%', 
                       textAlign: 'center',
-                      borderLeft: `4px solid ${dueDateColors.dueSoon}`,
+                      borderLeft: `4px solid ${theme.palette.info.main}`,
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
                         transform: 'translateY(-2px)',
@@ -421,10 +407,10 @@ const TodoStats = ({ todos }) => {
                     }}
                   >
                     <CardContent>
-                      <Avatar sx={{ bgcolor: dueDateColors.dueSoon, width: 32, height: 32, mx: 'auto', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: theme.palette.info.main, width: 32, height: 32, mx: 'auto', mb: 1 }}>
                         <SoonIcon sx={{ fontSize: 20 }} />
                       </Avatar>
-                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: dueDateColors.dueSoon }}>
+                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: theme.palette.info.main }}>
                         {dueDateStats.dueSoon}
                       </Typography>
                       <Typography variant="caption" display="block" color="text.secondary">
@@ -440,7 +426,7 @@ const TodoStats = ({ todos }) => {
                     sx={{ 
                       height: '100%', 
                       textAlign: 'center',
-                      borderLeft: `4px solid ${dueDateColors.noDueDate}`,
+                      borderLeft: `4px solid ${theme.palette.text.disabled}`,
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
                         transform: 'translateY(-2px)',
@@ -449,10 +435,10 @@ const TodoStats = ({ todos }) => {
                     }}
                   >
                     <CardContent>
-                      <Avatar sx={{ bgcolor: dueDateColors.noDueDate, width: 32, height: 32, mx: 'auto', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: theme.palette.text.disabled, width: 32, height: 32, mx: 'auto', mb: 1 }}>
                         <TagIcon sx={{ fontSize: 20 }} />
                       </Avatar>
-                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: dueDateColors.noDueDate }}>
+                      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: theme.palette.text.disabled }}>
                         {dueDateStats.noDueDate}
                       </Typography>
                       <Typography variant="caption" display="block" color="text.secondary">
@@ -471,7 +457,7 @@ const TodoStats = ({ todos }) => {
           <Card variant="outlined">
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar sx={{ bgcolor: '#00bcd4', mr: 1 }}>
+                <Avatar sx={{ bgcolor: theme.palette.info.dark, mr: 1 }}>
                   <TagIcon />
                 </Avatar>
                 <Typography variant="h6" component="div">
@@ -494,10 +480,10 @@ const TodoStats = ({ todos }) => {
                     }}
                   >
                     <CardContent>
-                      <Avatar sx={{ bgcolor: '#00bcd4', width: 48, height: 48, mx: 'auto', mb: 1 }}>
+                      <Avatar sx={{ bgcolor: theme.palette.info.dark, width: 48, height: 48, mx: 'auto', mb: 1 }}>
                         <TagIcon />
                       </Avatar>
-                      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: '#00bcd4' }}>
+                      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: theme.palette.info.dark }}>
                         {taggedTodos}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">

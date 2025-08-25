@@ -1,0 +1,6 @@
+# Dependencies
+/node_modules
+/src/backend/node_modules
+
+# Jules scratch pad
+/jules-scratch

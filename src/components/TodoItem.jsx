@@ -12,13 +12,15 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
+  IconButton,
   InputAdornment,
   InputLabel,
   MenuItem,
   OutlinedInput,
   Select,
   TextField,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -31,6 +33,7 @@ import notificationService from '../services/notificationService';
 
 
 const TodoItem = ({ todo, onUpdate, onDelete }) => {
+  const theme = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState(todo.text);
   const [editedDueDate, setEditedDueDate] = useState(todo.dueDate ? new Date(todo.dueDate) : null);
@@ -128,14 +131,6 @@ const TodoItem = ({ todo, onUpdate, onDelete }) => {
     return new Date(date).toLocaleDateString();
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return '#e63946';
-      case 'medium': return '#f8961e';
-      case 'low': return '#2a9d8f';
-      default: return '#6c757d';
-    }
-  };
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const handleOpenDeleteDialog = () => {
@@ -232,7 +227,7 @@ const TodoItem = ({ todo, onUpdate, onDelete }) => {
       <Card
         sx={{
           mb: 2,
-          borderLeft: `4px solid ${getPriorityColor(todo.priority)}`,
+          borderLeft: `4px solid ${theme.palette.priority[todo.priority] || theme.palette.text.disabled}`,
           opacity: todo.completed ? 0.7 : 1
         }}
       >
@@ -255,24 +250,21 @@ const TodoItem = ({ todo, onUpdate, onDelete }) => {
             </Box>
             
             <Box>
-              <Button
+              <IconButton
                 size="small"
-                startIcon={<EditIcon />}
                 onClick={() => setIsEditing(true)}
                 aria-label={`Edit todo: ${todo.text}`}
-                sx={{ minWidth: 'auto', px: 1 }}
-                role="button"
-                tabIndex={0}
-              />
-              <Button
+              >
+                <EditIcon />
+              </IconButton>
+              <IconButton
                 size="small"
-                startIcon={<DeleteIcon />}
                 onClick={handleOpenDeleteDialog}
                 aria-label={`Delete todo: ${todo.text}`}
-                sx={{ minWidth: 'auto', px: 1, color: '#e63946' }}
-                role="button"
-                tabIndex={0}
-              />
+                sx={{ color: 'error.main' }}
+              >
+                <DeleteIcon />
+              </IconButton>
             </Box>
           </Box>
           
@@ -293,7 +285,7 @@ const TodoItem = ({ todo, onUpdate, onDelete }) => {
                 label={todo.priority}
                 size="small"
                 sx={{
-                  backgroundColor: getPriorityColor(todo.priority),
+                  backgroundColor: theme.palette.priority[todo.priority] || theme.palette.grey[500],
                   color: '#fff'
                 }}
                 aria-label={`Priority: ${todo.priority}`}

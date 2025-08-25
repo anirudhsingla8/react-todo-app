@@ -15,7 +15,8 @@ import {
   Select,
   TextField,
   Typography,
-  Chip
+  Chip,
+  useTheme
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -30,6 +31,7 @@ import {
 import notificationService from '../services/notificationService';
 
 const AddTodoForm = ({ user, onAddTodo }) => {
+  const theme = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [text, setText] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -131,11 +133,8 @@ const AddTodoForm = ({ user, onAddTodo }) => {
               fullWidth
               sx={{
                 py: 1.5,
-                background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #1976D2 30%, #03A9F4 90%)',
-                }
+                color: 'white',
+                background: theme.palette.gradients.primary,
               }}
             >
               {isLoading ? 'Adding...' : 'Add Todo'}
@@ -150,9 +149,9 @@ const AddTodoForm = ({ user, onAddTodo }) => {
                   justifyContent: 'space-between',
                   textTransform: 'none',
                   py: 1.5,
-                  backgroundColor: '#f5f5f5',
+                  backgroundColor: theme.palette.grey[100],
                   '&:hover': {
-                    backgroundColor: '#e0e0e0',
+                    backgroundColor: theme.palette.grey[200],
                   }
                 }}
               >
@@ -200,7 +199,7 @@ const AddTodoForm = ({ user, onAddTodo }) => {
                                 size="small"
                                 label="Low"
                                 sx={{
-                                  backgroundColor: '#4caf50',
+                                  backgroundColor: theme.palette.priority.low,
                                   color: 'white',
                                   height: 20
                                 }}
@@ -214,7 +213,7 @@ const AddTodoForm = ({ user, onAddTodo }) => {
                                 size="small"
                                 label="Medium"
                                 sx={{
-                                  backgroundColor: '#ff9800',
+                                  backgroundColor: theme.palette.priority.medium,
                                   color: 'white',
                                   height: 20
                                 }}
@@ -228,7 +227,7 @@ const AddTodoForm = ({ user, onAddTodo }) => {
                                 size="small"
                                 label="High"
                                 sx={{
-                                  backgroundColor: '#f44336',
+                                  backgroundColor: theme.palette.priority.high,
                                   color: 'white',
                                   height: 20
                                 }}
