@@ -15,9 +15,6 @@ export class AuthController {
       }
       
       const user = await this.usersService.validateUser(username, password);
-      if (!user) {
-        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-      }
       
       // Remove password from response
       const { password: _, ...userWithoutPassword } = user;
@@ -31,6 +28,9 @@ export class AuthController {
         message: 'Login successful'
       };
     } catch (error) {
+      if (error.message === 'User not found' || error.message === 'Incorrect password') {
+        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
+      }
       if (error instanceof HttpException) {
         throw error;
       }

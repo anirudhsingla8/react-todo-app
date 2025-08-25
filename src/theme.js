@@ -1,56 +1,56 @@
 import { createTheme } from '@mui/material/styles';
 
-// Define the color palette
+// A modern, clean, and elegant theme
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2196F3',
-      light: '#64B5F6',
-      dark: '#1976D2',
+      main: '#007BFF', // A vibrant blue
+      light: '#66B2FF',
+      dark: '#0059B2',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#9C27B0',
-      light: '#BA68C8',
-      dark: '#7B1FA2',
+      main: '#6c757d', // A neutral secondary color
+      light: '#a1a7ac',
+      dark: '#495057',
       contrastText: '#ffffff',
     },
     error: {
-      main: '#F44336',
-      light: '#E57373',
-      dark: '#D32F',
+      main: '#dc3545', // A standard red for errors
+      light: '#e4606d',
+      dark: '#b02a37',
       contrastText: '#ffffff',
     },
     warning: {
-      main: '#FF9800',
-      light: '#FFB74D',
-      dark: '#F57C00',
+      main: '#ffc107', // A warm orange for warnings
+      light: '#ffcd3c',
+      dark: '#b28704',
       contrastText: '#000000',
     },
     info: {
-      main: '#2196F3',
-      light: '#64B5F6',
-      dark: '#1976D2',
+      main: '#17a2b8', // A cool teal for info
+      light: '#45b5c9',
+      dark: '#107180',
       contrastText: '#ffffff',
     },
     success: {
-      main: '#4CAF50',
-      light: '#81C784',
-      dark: '#388E3C',
+      main: '#28a745', // A vibrant green for success
+      light: '#53b86a',
+      dark: '#1c7430',
       contrastText: '#ffffff',
     },
     background: {
-      default: '#f0f2f5',
+      default: '#f8f9fa', // A very light grey for the background
       paper: '#ffffff',
     },
     text: {
-      primary: '#212121',
-      secondary: '#7575',
-      disabled: '#9E9E9E',
+      primary: '#212529',
+      secondary: '#6c757d',
+      disabled: '#adb5bd',
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
       fontSize: '2.5rem',
       fontWeight: 700,
@@ -92,23 +92,24 @@ const theme = createTheme({
     },
     button: {
       textTransform: 'none',
-      fontWeight: 500,
-    },
-    caption: {
-      fontSize: '0.75rem',
-      lineHeight: 1.33,
+      fontWeight: 600,
     },
   },
   shape: {
     borderRadius: 8,
   },
   components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
           borderRadius: 8,
-          textTransform: 'none',
-          fontWeight: 500,
           boxShadow: 'none',
           '&:hover': {
             boxShadow: 'none',
@@ -117,7 +118,7 @@ const theme = createTheme({
         contained: {
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           '&:hover': {
-            boxShadow: '0 4px 8px rgba(0, 0, 0.15)',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
           },
         },
       },
@@ -126,51 +127,10 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-          transition: 'box-shadow 0.2s ease-in-out',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+          transition: 'box-shadow 0.3s ease-in-out',
           '&:hover': {
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
-          },
-        },
-      },
-    },
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          '& .MuiOutlinedInput-root': {
-            borderRadius: 8,
-          },
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        },
-      },
-    },
-    MuiDrawer: {
-      styleOverrides: {
-        paper: {
-          boxShadow: '2px 0 5px rgba(0, 0, 0, 0.05)',
-        },
-      },
-    },
-    MuiListItemButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '0 24px 24px 0',
-          margin: '0 8px',
-          '&.Mui-selected': {
-            backgroundColor: '#2196F3',
-            color: '#fff',
-            '&:hover': {
-              backgroundColor: '#1976D2',
-            },
-          },
-          '&:hover': {
-            backgroundColor: '#E3F2FD',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
           },
         },
       },
