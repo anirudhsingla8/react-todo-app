@@ -1,28 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
-import { User } from './user.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User, UserDocument } from './user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(username: string, password: string): Promise<User> {
-    try {
-      return await this.databaseService.createUser(username, password);
-    } catch (error) {
-      if (error.message.includes('UNIQUE constraint failed')) {
-        throw new Error('User already exists');
-      }
-      throw error;
+    const existingUser = await this.userModel.findOne({ username }).exec();
+    if (existingUser) {
+      throw new Error('User already exists');
     }
+    const createdUser = new this.userModel({ username, password });
+    return createdUser.save();
   }
 
   async findOneByUsername(username: string): Promise<User | undefined> {
-    return await this.databaseService.findUserByUsername(username);
+    return this.userModel.findOne({ username }).exec();
   }
 
-  async findOneById(id: number): Promise<User | undefined> {
-    return await this.databaseService.findUserById(id);
+  async findOneById(id: string): Promise<User | undefined> {
+    return this.userModel.findById(id).exec();
   }
 
   async validateUser(username: string, password: string): Promise<User | null> {
@@ -33,8 +32,6 @@ export class UsersService {
     if (user.password !== password) {
       throw new Error('Incorrect password');
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...result } = user;
     return user;
   }
 }

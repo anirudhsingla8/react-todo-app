@@ -8,14 +8,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TodosService = void 0;
 const common_1 = require("@nestjs/common");
-const database_service_1 = require("../database/database.service");
+const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
 const users_service_1 = require("../users/users.service");
+const todo_schema_1 = require("./todo.schema");
 let TodosService = class TodosService {
-    constructor(databaseService, usersService) {
-        this.databaseService = databaseService;
+    constructor(todoModel, usersService) {
+        this.todoModel = todoModel;
         this.usersService = usersService;
     }
     async create(userId, text, options) {
@@ -23,29 +29,34 @@ let TodosService = class TodosService {
         if (!user) {
             throw new Error('User not found');
         }
-        return await this.databaseService.createTodo(userId, text, options);
+        const newTodo = new this.todoModel(Object.assign({ userId,
+            text }, options));
+        return newTodo.save();
     }
     async findAllByUserId(userId) {
         const user = await this.usersService.findOneById(userId);
         if (!user) {
             throw new Error('User not found');
         }
-        return await this.databaseService.findTodosByUserId(userId);
+        return this.todoModel.find({ userId }).exec();
     }
     async updateCompletion(id, completed) {
-        return await this.databaseService.updateTodoCompletion(id, completed);
+        const result = await this.todoModel.updateOne({ _id: id }, { completed, completedAt: completed ? new Date() : null }).exec();
+        return result.acknowledged && result.modifiedCount > 0;
     }
     async update(id, updates) {
-        return await this.databaseService.updateTodo(id, updates);
+        const result = await this.todoModel.updateOne({ _id: id }, updates).exec();
+        return result.acknowledged && result.modifiedCount > 0;
     }
     async delete(id) {
-        return await this.databaseService.deleteTodo(id);
+        const result = await this.todoModel.deleteOne({ _id: id }).exec();
+        return result.acknowledged && result.deletedCount > 0;
     }
 };
 exports.TodosService = TodosService;
 exports.TodosService = TodosService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [database_service_1.DatabaseService,
-        users_service_1.UsersService])
+    __param(0, (0, mongoose_1.InjectModel)(todo_schema_1.Todo.name)),
+    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object, users_service_1.UsersService])
 ], TodosService);
 //# sourceMappingURL=todos.service.js.map

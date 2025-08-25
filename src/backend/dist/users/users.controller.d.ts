@@ -8,9 +8,9 @@ export declare class UsersController {
     }): Promise<{
         message: string;
         user: {
-            id: number;
+            id: any;
             username: string;
-            createdAt: Date;
+            createdAt: any;
         };
     }>;
 }

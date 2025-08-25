@@ -1,50 +1,57 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
-import { Todo } from './todo.interface';
+import { Todo, TodoDocument } from './todo.schema';
 
 @Injectable()
 export class TodosService {
   constructor(
-    private readonly databaseService: DatabaseService,
+    @InjectModel(Todo.name) private todoModel: Model<TodoDocument>,
     private readonly usersService: UsersService,
   ) {}
 
-  async create(userId: number, text: string, options?: {
+  async create(userId: string, text: string, options?: {
     dueDate?: Date;
     tags?: string[];
     priority?: 'low' | 'medium' | 'high';
     notes?: string;
     reminder?: Date;
   }): Promise<Todo> {
-    // Verify user exists
     const user = await this.usersService.findOneById(userId);
     if (!user) {
       throw new Error('User not found');
     }
 
-    return await this.databaseService.createTodo(userId, text, options);
+    const newTodo = new this.todoModel({
+      userId,
+      text,
+      ...options,
+    });
+    return newTodo.save();
   }
 
-  async findAllByUserId(userId: number): Promise<Todo[]> {
-    // Verify user exists
+  async findAllByUserId(userId: string): Promise<Todo[]> {
     const user = await this.usersService.findOneById(userId);
     if (!user) {
       throw new Error('User not found');
     }
 
-    return await this.databaseService.findTodosByUserId(userId);
+    return this.todoModel.find({ userId }).exec();
   }
 
-  async updateCompletion(id: number, completed: boolean): Promise<boolean> {
-    return await this.databaseService.updateTodoCompletion(id, completed);
+  async updateCompletion(id: string, completed: boolean): Promise<boolean> {
+    const result = await this.todoModel.updateOne({ _id: id }, { completed, completedAt: completed ? new Date() : null }).exec();
+    return result.acknowledged && result.modifiedCount > 0;
   }
 
-  async update(id: number, updates: Partial<Todo>): Promise<boolean> {
-    return await this.databaseService.updateTodo(id, updates);
+  async update(id: string, updates: Partial<Todo>): Promise<boolean> {
+    const result = await this.todoModel.updateOne({ _id: id }, updates).exec();
+    return result.acknowledged && result.modifiedCount > 0;
   }
 
-  async delete(id: number): Promise<boolean> {
-    return await this.databaseService.deleteTodo(id);
+  async delete(id: string): Promise<boolean> {
+    const result = await this.todoModel.deleteOne({ _id: id }).exec();
+    return result.acknowledged && result.deletedCount > 0;
   }
 }

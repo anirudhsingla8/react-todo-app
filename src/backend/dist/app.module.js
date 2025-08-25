@@ -8,16 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const mongoose_1 = require("@nestjs/mongoose");
 const users_module_1 = require("./users/users.module");
 const todos_module_1 = require("./todos/todos.module");
-const database_module_1 = require("./database/database.module");
 const auth_module_1 = require("./auth/auth.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule, users_module_1.UsersModule, todos_module_1.TodosModule, auth_module_1.AuthModule],
+        imports: [
+            mongoose_1.MongooseModule.forRoot('mongodb+srv://myAtlasDBUser:rj13sl1608@cluster0.whgoitb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'),
+            users_module_1.UsersModule,
+            todos_module_1.TodosModule,
+            auth_module_1.AuthModule
+        ],
         controllers: [],
         providers: [],
     })

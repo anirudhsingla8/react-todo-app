@@ -1,19 +1,19 @@
-import { DatabaseService } from '../database/database.service';
+import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
-import { Todo } from './todo.interface';
+import { Todo, TodoDocument } from './todo.schema';
 export declare class TodosService {
-    private readonly databaseService;
+    private todoModel;
     private readonly usersService;
-    constructor(databaseService: DatabaseService, usersService: UsersService);
-    create(userId: number, text: string, options?: {
+    constructor(todoModel: Model<TodoDocument>, usersService: UsersService);
+    create(userId: string, text: string, options?: {
         dueDate?: Date;
         tags?: string[];
         priority?: 'low' | 'medium' | 'high';
         notes?: string;
         reminder?: Date;
     }): Promise<Todo>;
-    findAllByUserId(userId: number): Promise<Todo[]>;
-    updateCompletion(id: number, completed: boolean): Promise<boolean>;
-    update(id: number, updates: Partial<Todo>): Promise<boolean>;
-    delete(id: number): Promise<boolean>;
+    findAllByUserId(userId: string): Promise<Todo[]>;
+    updateCompletion(id: string, completed: boolean): Promise<boolean>;
+    update(id: string, updates: Partial<Todo>): Promise<boolean>;
+    delete(id: string): Promise<boolean>;
 }

@@ -42,8 +42,11 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.setGlobalPrefix('api');
     app.enableCors();
-    const clientPath = (0, path_1.join)(__dirname, '..', '..', 'dist');
+    const clientPath = (0, path_1.join)(__dirname, '..', '..', '..', 'dist');
+    console.log('Looking for frontend files in:', clientPath);
+    console.log('Frontend directory exists:', (0, fs_1.existsSync)(clientPath));
     if ((0, fs_1.existsSync)(clientPath) && (0, fs_1.statSync)(clientPath).isDirectory()) {
+        console.log('Frontend directory is accessible, setting up static file serving');
         app.use(express.static(clientPath));
         app.use('*', (req, res) => {
             const filePath = (0, path_1.join)(clientPath, req.path);
@@ -54,6 +57,9 @@ async function bootstrap() {
                 res.sendFile((0, path_1.join)(clientPath, 'index.html'));
             }
         });
+    }
+    else {
+        console.log('Frontend directory not found or not accessible, skipping static file serving');
     }
     await app.listen(3000);
     console.log(`Application is running on: http://localhost:3000`);

@@ -7,9 +7,9 @@ export declare class AuthController {
         password: string;
     }): Promise<{
         user: {
-            id: number;
+            id: any;
             username: string;
-            createdAt: Date;
+            createdAt: any;
         };
         message: string;
     }>;

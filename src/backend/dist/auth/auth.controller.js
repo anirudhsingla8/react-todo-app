@@ -37,9 +37,6 @@ let AuthController = class AuthController {
                 throw new common_1.HttpException('Username and password are required', common_1.HttpStatus.BAD_REQUEST);
             }
             const user = await this.usersService.validateUser(username, password);
-            if (!user) {
-                throw new common_1.HttpException('Invalid credentials', common_1.HttpStatus.UNAUTHORIZED);
-            }
             const { password: _ } = user, userWithoutPassword = __rest(user, ["password"]);
             return {
                 user: {
@@ -51,6 +48,9 @@ let AuthController = class AuthController {
             };
         }
         catch (error) {
+            if (error.message === 'User not found' || error.message === 'Incorrect password') {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.UNAUTHORIZED);
+            }
             if (error instanceof common_1.HttpException) {
                 throw error;
             }

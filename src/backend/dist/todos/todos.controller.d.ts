@@ -1,11 +1,10 @@
 import { TodosService } from './todos.service';
 import { UsersService } from '../users/users.service';
-import { Todo } from './todo.interface';
 export declare class TodosController {
     private readonly todosService;
     private readonly usersService;
     constructor(todosService: TodosService, usersService: UsersService);
-    getTodos(username: string): Promise<Todo[]>;
+    getTodos(username: string): Promise<import("./todo.schema").Todo[]>;
     createTodo(body: {
         username: string;
         text: string;
@@ -14,7 +13,7 @@ export declare class TodosController {
         priority?: 'low' | 'medium' | 'high';
         notes?: string;
         reminder?: string;
-    }): Promise<Todo>;
+    }): Promise<import("./todo.schema").Todo>;
     updateTodo(body: {
         id: number;
         completed: boolean;

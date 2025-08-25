@@ -27,10 +27,10 @@ let AuthService = class AuthService {
     constructor(usersService) {
         this.usersService = usersService;
     }
-    async validateUser(username, password) {
-        const user = await this.usersService.validateUser(username, password);
+    async validateUser(username, pass) {
+        const user = await this.usersService.validateUser(username, pass);
         if (user) {
-            const { password } = user, result = __rest(user, ["password"]);
+            const _a = user.toObject(), { password } = _a, result = __rest(_a, ["password"]);
             return result;
         }
         return null;
