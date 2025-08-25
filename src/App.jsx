@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import Login from './Login'
 import Dashboard from './components/Dashboard'
@@ -10,7 +10,6 @@ import './App.css'
 function App() {
   const [user, setUser] = useState(null)
   const [todos, setTodos] = useState([])
-  const [filteredTodos, setFilteredTodos] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
@@ -56,53 +55,6 @@ function App() {
     setTodos([])
   }
 
-  const toggleTodo = async (id) => {
-    try {
-      const todo = todos.find(t => t.id === id)
-      if (!todo) return
-      
-      const response = await fetch('/api/todos', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id, completed: !todo.completed })
-      })
-      
-      if (response.ok) {
-        // The backend now returns the updated todo properties
-        const updatedTodo = await response.json();
-        setTodos(todos.map(t => t.id === id ? { ...t, completed: updatedTodo.completed } : t))
-      } else {
-        const error = await response.json()
-        console.error('Failed to update todo:', error.message)
-      }
-    } catch (error) {
-      console.error('Network error:', error)
-    }
-  }
-
-  const deleteTodo = async (id) => {
-    try {
-      const response = await fetch('/api/todos', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id })
-      })
-      
-      if (response.ok) {
-        setTodos(todos.filter(todo => todo.id !== id))
-      } else {
-        const error = await response.json()
-        console.error('Failed to delete todo:', error.message)
-      }
-    } catch (error) {
-      console.error('Network error:', error)
-    }
-  }
-
   const handleUpdateTodo = (id, updatedTodo) => {
     setTodos(todos.map(todo =>
       todo.id === id ? { ...todo, ...updatedTodo } : todo
@@ -113,8 +65,7 @@ function App() {
     setTodos(todos.filter(todo => todo.id !== id));
   };
 
-  // Filter and sort todos
-  useEffect(() => {
+  const filteredAndSortedTodos = useMemo(() => {
     let filtered = [...todos];
     
     // Apply search filter
@@ -166,7 +117,7 @@ function App() {
       }
     });
     
-    setFilteredTodos(filtered);
+    return filtered;
   }, [todos, searchTerm, filterStatus, sortBy, sortOrder]);
 
   return (
@@ -186,7 +137,7 @@ function App() {
           <Dashboard
             user={user}
             todos={todos}
-            filteredTodos={filteredTodos}
+            filteredTodos={filteredAndSortedTodos}
             loading={loading}
             searchTerm={searchTerm}
             filterStatus={filterStatus}

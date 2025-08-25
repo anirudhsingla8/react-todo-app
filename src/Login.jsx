@@ -29,13 +29,12 @@ function Login({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    const username = formData.get('username');
-    const password = formData.get('password');
-    const confirmPassword = formData.get('confirmPassword');
 
     if (!username || !password || (!isLogin && !confirmPassword)) {
       notificationService.error('Please fill in all fields.');
@@ -95,6 +94,13 @@ function Login({ onLogin }) {
     }
   };
 
+  const toggleForm = () => {
+    setIsLogin(!isLogin);
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Card
@@ -127,6 +133,8 @@ function Login({ onLogin }) {
               autoFocus
               required
               fullWidth
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -144,6 +152,8 @@ function Login({ onLogin }) {
                 type={showPassword ? 'text' : 'password'}
                 label="Password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 startAdornment={<InputAdornment position="start"><Lock /></InputAdornment>}
                 endAdornment={
                   <InputAdornment position="end">
@@ -168,6 +178,8 @@ function Login({ onLogin }) {
                   type={showConfirmPassword ? 'text' : 'password'}
                   label="Confirm Password"
                   required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   startAdornment={<InputAdornment position="start"><Lock /></InputAdornment>}
                   endAdornment={
                     <InputAdornment position="end">
@@ -200,7 +212,7 @@ function Login({ onLogin }) {
         <Box sx={{ mt: 3 }}>
           <Button
             variant="text"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={toggleForm}
           >
             {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
           </Button>
